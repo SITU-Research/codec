@@ -1,0 +1,35 @@
+{
+  "name": "codec",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "sirv public --no-clear"
+  },
+  "devDependencies": {
+    "@beyonk/svelte-mapbox": "^8.1.4",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-replace": "^3.1.0",
+    "netlify-cli": "^9.6.5",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "svelte-grid": "^5.1.1",
+    "svelte-watch-resize": "^1.0.3"
+  },
+  "dependencies": {
+    "@mapbox/sexagesimal": "^1.2.0",
+    "colormap": "^2.3.2",
+    "google-spreadsheet": "^3.2.0",
+    "mapbox-gl": "^2.7.0",
+    "sirv-cli": "^2.0.0",
+    "three": "^0.137.5",
+    "underscore": "^1.13.2",
+    "vis-timeline": "^7.5.0"
+  }
+}

@@ -1,0 +1,14 @@
+[dev]
+    functions = "./functions"
+    framework = "#custom"
+    targetPort = 8080
+    command = "npm run dev"
+
+[build]
+    command = "npm run build"
+    functions = "./functions"
+    publish = "public"
+    framework = "#custom"
+
+[[plugins]]
+    package = "netlify-plugin-inline-functions-env"
