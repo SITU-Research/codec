@@ -1,5 +1,5 @@
 <script>
-    import { filter_toggles } from "../stores/store";
+    import { filter_toggles } from "../../stores/store";
     let menu_visible = false;
 
     function onCheckboxChange(event, filter, possible_value) {
@@ -9,12 +9,15 @@
 
 <button
     id="filter_button"
+    class="box text_level1 noselect"
     on:click={() => {
         menu_visible = !menu_visible;
-    }}>toggle filter menu</button
+    }}
 >
+    filter
+</button>
 {#if menu_visible}
-    <div id="filter_menu">
+    <div id="filter_menu" class="noselect">
         {#each Object.entries($filter_toggles) as [filter, value]}
             {#if typeof value === "object"}
                 <details>
@@ -56,22 +59,15 @@
 {/if}
 
 <style>
-    * {
-        -webkit-user-select: none; /* Safari */
-        -khtml-user-select: none; /* Konqueror HTML */
-        -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-        user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
-    }
     #filter_button {
-        border: 1px solid #ccc;
-        background-color: black;
-        display: inline-block;
+        /* border: 1px solid #ccc;
+        background-color: black; */
+        /* display: inline-block; */
         z-index: 4;
         /* padding: 6px 12px; */
         cursor: pointer;
         color: lightgray;
+        height: var(--topbar-size);
     }
 
     #filter_menu {

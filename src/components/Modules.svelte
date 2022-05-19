@@ -8,7 +8,7 @@
   let resized_wakies = 0;
 
   const id = () => "_" + Math.random().toString(36).substr(2, 9);
-  let rowHeight = 30;
+  let rowHeight = 10;
   let n_cols = 20;
   let cols = [[1, n_cols]];
 
@@ -106,14 +106,14 @@
     }}
     on:addModule={(event) => console.log("add module event received!!")}
   >
-    <div class="module">
+    <div class="box module">
       <div class="module_topbar">
         {#if item.customDragger}
           <div class="module_dragger" on:pointerdown={movePointerDown}>
             &#x2725;
           </div>
         {/if}
-        <div class="module_title">{dataItem.type}</div>
+        <div class="module_title text_level1">{dataItem.type}</div>
         <div
           class="module_close"
           on:pointerdown={(e) => e.stopPropagation()}
@@ -139,15 +139,6 @@
   #modules_container {
     height: 96%;
     width: 100%;
-  }
-
-  .module {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-flow: column nowrap;
-    background-color: rgb(31, 31, 31);
-    outline: 1px solid white;
   }
 
   :global(.svlt-grid-resizer) {

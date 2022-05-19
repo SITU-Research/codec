@@ -1,5 +1,5 @@
 <script>
-    import { ui_store } from "../stores/store";
+    import { ui_store } from "../../stores/store";
 
     function request_add_module() {
         dispatch("addModule");

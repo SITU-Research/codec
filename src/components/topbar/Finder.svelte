@@ -1,5 +1,5 @@
 <script>
-    import { ui_store, media_store } from "../stores/store";
+    import { ui_store, media_store } from "../../stores/store";
     let input, response;
 
     function onKeyup(event) {
@@ -22,15 +22,16 @@
     }
 </script>
 
-<div id="find_video_area">
+<div class="box" id="find_video_area">
     <input
         bind:this={input}
         id="find_video_input"
         type="text"
         on:keyup={onKeyup}
+        placeholder="SEARCH MEDIA"
     />
     <button id="find_video_button" on:click={run_search_query}
-        >find video</button
+        ><img src="icons/magnifying_glass.svg" alt="search icon" /></button
     >
     <div bind:this={response} id="find_video_response" />
 </div>
@@ -41,21 +42,21 @@
         flex-flow: row nowrap;
         align-items: center;
         margin-left: 20px;
+        height: (--topbar-size);
     }
 
     #find_video_area > input {
-        height: 60%;
-        border: 1px solid #ccc;
-        background-color: rgb(100, 100, 100);
-        border-collapse: collapse;
+        /* height: 60%; */
+        /* border: 1px solid #ccc; */
+        /* background-color: rgb(100, 100, 100); */
+        /* border-collapse: collapse; */
     }
 
     #find_video_button {
-        border: 1px solid #ccc;
-        background-color: black;
+        border: none;
         display: inline-block;
         cursor: pointer;
-        color: lightgray;
+        /* color: lightgray; */
     }
 
     #find_video_response {

@@ -1,7 +1,7 @@
 <script>
-    import Filter from "./Filter.svelte";
-    import Finder from "./Finder.svelte";
-    import ModuleTools from "./ModuleTools.svelte";
+    import Filter from "./topbar/Filter.svelte";
+    import Finder from "./topbar/Finder.svelte";
+    import ModuleTools from "./topbar/ModuleTools.svelte";
 </script>
 
 <div id="top_bar">
@@ -12,7 +12,7 @@
 
 <style>
     #top_bar {
-        height: 4%;
+        height: var(--topbar-size);
         display: flex;
         flex-flow: row nowrap;
         z-index: 4;

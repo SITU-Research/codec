@@ -1,19 +1,87 @@
-html, body {
-	position: relative;
+:root {
+	--grey1: #1E1E1E;
+	--grey2: #41484E;
+	--grey3: #2C2C2C;
+	--grid-size: 10px;
+	--topbar-size: 20px;
+
+}
+
+html {
+	position: absolute;
 	width: 100%;
 	height: 100%;
+	margin: 0;
 }
 
 body {
-	color: #333;
+	position: absolute;
+	width: 100%;
+	height: 100%;
 	margin: 0;
-	padding: 8px;
-	box-sizing: border-box;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	background-size: var(--grid-size) var(--grid-size);
+	background-color: var(--grey1);
+	background-image:
+		linear-gradient(to right, var(--grey2) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--grey2) 1px, transparent 1px);
+	font-family: "Nunito", sans-serif;
+	font-weight: 400 !important;
+	/* background-color: rgb(94, 94, 94) */
+	-ms-overflow-style: none;
+	/* IE and Edge */
+	scrollbar-width: none;
+	/* Firefox */
+	color: var(--grey2);
 }
 
+
+main {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	padding: calc(var(--grid-size)*2);
+	box-sizing: border-box;
+}
+
+.text_level1 {
+	font-size: 14px;
+	text-transform: uppercase;
+}
+
+.text_level2 {
+	font-size: 14px;
+}
+
+
+
+::-webkit-scrollbar {
+	display: none;
+	width: 0px;
+	/* Remove scrollbar space */
+	background: transparent;
+	/* Optional: just make scrollbar invisible */
+}
+
+
+.noselect {
+	-webkit-user-select: none;
+	/* Safari */
+	-khtml-user-select: none;
+	/* Konqueror HTML */
+	-moz-user-select: none;
+	/* Old versions of Firefox */
+	-ms-user-select: none;
+	/* Internet Explorer/Edge */
+	user-select: none;
+	/* Non-prefixed version, currently
+							  supported by Chrome, Edge, Opera and Firefox */
+}
+
+
 a {
-	color: rgb(0,100,200);
+	color: rgb(0, 100, 200);
 	text-decoration: none;
 }
 
@@ -22,42 +90,74 @@ a:hover {
 }
 
 a:visited {
-	color: rgb(0,80,160);
+	color: rgb(0, 80, 160);
 }
 
 label {
 	display: block;
 }
 
-input, button, select, textarea {
-	font-family: inherit;
-	font-size: inherit;
-	-webkit-padding: 0.4em 0;
-	padding: 0.4em;
-	margin: 0 0 0.5em 0;
-	box-sizing: border-box;
-	border: 1px solid #ccc;
-	border-radius: 2px;
+input,
+button,
+select,
+textarea {
+	padding: 0 inherit;
+	outline: none;
+	border: none;
+	background: none;
+	vertical-align: baseline;
+}
+
+input {
+	background-color: black;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+	outline: none;
 }
 
 input:disabled {
 	color: #ccc;
 }
 
-button {
-	color: #333;
-	background-color: #f4f4f4;
-	outline: none;
+.box {
+	background-color: black;
+	border: 1px solid var(--grey2);
+	border-radius: 2px;
+	box-sizing: border-box;
 }
 
-button:disabled {
-	color: #999;
+.module {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-flow: column nowrap;
 }
 
-button:not(:disabled):active {
-	background-color: #ddd;
+.modal_container {
+	position: fixed;
+	/* Stay in place */
+	z-index: 1;
+	/* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%;
+	/* Full width */
+	height: 100%;
+	/* Full height */
+	overflow: auto;
+	/* Enable scroll if needed */
+	background-color: rgb(0, 0, 0);
+	/* Fallback color */
+	background-color: rgba(0, 0, 0, 0.4);
+	/* Black w/ opacity */
 }
 
-button:focus {
-	border-color: #666;
+.modal_content {
+	margin: 15% auto;
+	padding: 20px;
+	width: 80%;
 }

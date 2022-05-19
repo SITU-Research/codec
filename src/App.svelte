@@ -19,10 +19,10 @@
   }, 5);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
-    return () => {
-      clearInterval(fetch_interval);
-    };
+    // let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
+    // return () => {
+    //   clearInterval(fetch_interval);
+    // };
   });
 
   function fetch_google_sheet_data() {
@@ -238,48 +238,25 @@
 </svelte:head>
 <main on:mousemove={handleMouseMove}>
   {#await fetch_google_sheet_data()}
-    <p>fetching initial data from the spreadsheet...</p>
+    <div class="modal_container">
+      <div class="box modal_content text_level2">
+        fetching initial data from the spreadsheet...
+      </div>
+    </div>
   {:then}
     {#if $platform_config_store["Source of media files"] && $platform_config_store["Source of media files"].includes("local")}
-      <LocalMediaInput />
+      <!-- <LocalMediaInput /> -->
     {/if}
     <Tooltip {mouse_xy} />
     <Topbar />
     <Modules />
   {:catch error}
-    <p>Something went wrong, please reload the page</p>
-    <p>{error.message}</p>
+    <div class="modal_container">
+      <div class="box modal_content text_level2">
+        <p>something went wrong, see below for error</p>
+        <p>{error.message}</p>
+        <p>please reload the page</p>
+      </div>
+    </div>
   {/await}
 </main>
-
-<style>
-  * {
-    font-family: "Nunito", sans-serif;
-    color: lightgray !important;
-    /* background-color: rgb(94, 94, 94) */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  main {
-    background-color: rgb(27, 27, 27);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  ::-webkit-scrollbar {
-    display: none;
-    width: 0px; /* Remove scrollbar space */
-    background: transparent; /* Optional: just make scrollbar invisible */
-  }
-
-  :global(input:focus),
-  :global(select:focus),
-  :global(textarea:focus),
-  :global(button:focus) {
-    outline: none;
-  }
-</style>
