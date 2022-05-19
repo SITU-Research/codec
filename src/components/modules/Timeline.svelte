@@ -4,7 +4,7 @@
     events_store,
     ui_store,
     platform_config_store,
-  } from "../stores/store";
+  } from "../../stores/store";
   import { DataSet, DataView, Timeline, moment } from "vis-timeline/standalone";
   // import "vis-timeline/styles/vis-timeline-graph2d.css";
 

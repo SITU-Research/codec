@@ -3,7 +3,7 @@
     ui_store,
     local_file_store,
     platform_config_store,
-  } from "../stores/store";
+  } from "../../stores/store";
   export let medium;
 
   function OnExitClick() {

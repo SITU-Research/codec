@@ -4,7 +4,7 @@
     platform_config_store,
     media_store_filtered,
     ui_store,
-  } from "../stores/store";
+  } from "../../stores/store";
   const { NavigationControl, ScaleControl } = controls;
 
   let zoom, mapComponent;

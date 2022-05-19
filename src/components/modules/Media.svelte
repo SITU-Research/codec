@@ -1,6 +1,6 @@
 <script>
   import MediumVideo from "./MediumVideo.svelte";
-  import { ui_store, media_store } from "../stores/store";
+  import { ui_store, media_store } from "../../stores/store";
 </script>
 
 <div class="media">

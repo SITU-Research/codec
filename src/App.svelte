@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { throttle } from "underscore";
   import LocalMediaInput from "./components/LocalMediaInput.svelte";
-  import Topbar from "./components/Topbar.svelte";
+  import Topbar from "./components/topbar/Topbar.svelte";
   import Tooltip from "./components/Tooltip.svelte";
   import Modules from "./components/Modules.svelte";
   import {

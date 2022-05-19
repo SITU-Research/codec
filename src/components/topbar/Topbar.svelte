@@ -1,7 +1,7 @@
 <script>
-    import Filter from "./topbar/Filter.svelte";
-    import Finder from "./topbar/Finder.svelte";
-    import ModuleTools from "./topbar/ModuleTools.svelte";
+    import Filter from "./Filter.svelte";
+    import Finder from "./Finder.svelte";
+    import ModuleTools from "./ModuleTools.svelte";
 </script>
 
 <div id="top_bar">
@@ -16,5 +16,6 @@
         display: flex;
         flex-flow: row nowrap;
         z-index: 4;
+        padding: calc(var(--grid-size) / 2);
     }
 </style>

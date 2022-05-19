@@ -1,6 +1,7 @@
 <script>
     import { ui_store, media_store } from "../../stores/store";
-    let input, response;
+    let input;
+    let input_focused = false;
 
     function onKeyup(event) {
         let key = event.key || event.keyCode;
@@ -10,30 +11,30 @@
     }
 
     function run_search_query() {
-        response.innerHTML = "";
         let result = $media_store[input.value];
-        if ($ui_store.media_in_view.includes(input.value)) {
-            response.innerHTML = "media already displayed";
-        } else if (result) {
+        if (result) {
             $ui_store.media_in_view = [...$ui_store.media_in_view, input.value];
-        } else {
-            response.innerHTML = "query not found";
         }
     }
 </script>
 
-<div class="box" id="find_video_area">
+<div class="box {input_focused ? 'finder_focus' : ''}" id="find_video_area">
     <input
         bind:this={input}
         id="find_video_input"
         type="text"
         on:keyup={onKeyup}
+        on:focus={() => {
+            input_focused = true;
+        }}
+        on:blur={() => {
+            input_focused = false;
+        }}
         placeholder="SEARCH MEDIA"
     />
     <button id="find_video_button" on:click={run_search_query}
         ><img src="icons/magnifying_glass.svg" alt="search icon" /></button
     >
-    <div bind:this={response} id="find_video_response" />
 </div>
 
 <style>
@@ -45,22 +46,8 @@
         height: (--topbar-size);
     }
 
-    #find_video_area > input {
-        /* height: 60%; */
-        /* border: 1px solid #ccc; */
-        /* background-color: rgb(100, 100, 100); */
-        /* border-collapse: collapse; */
-    }
-
-    #find_video_button {
-        border: none;
-        display: inline-block;
-        cursor: pointer;
-        /* color: lightgray; */
-    }
-
-    #find_video_response {
-        margin-left: 10px;
-        font-size: small;
+    .finder_focus {
+        border-color: white;
+        color: white;
     }
 </style>

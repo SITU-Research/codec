@@ -1,9 +1,9 @@
 <script>
   import { ui_store } from "../stores/store";
   import { Grid, gridHelp } from "../svelte-grid";
-  import Timeline from "./Timeline.svelte";
+  import Timeline from "./modules/Timeline.svelte";
   import Map from "./Map.svelte";
-  import Media from "./Media.svelte";
+  import Media from "./modules/Media.svelte";
 
   let resized_wakies = 0;
 
@@ -95,7 +95,7 @@
     fastStart={true}
     fillSpace={true}
     {cols}
-    gap={[1, 1]}
+    gap={[5, 5]}
     bind:items
     {rowHeight}
     let:item

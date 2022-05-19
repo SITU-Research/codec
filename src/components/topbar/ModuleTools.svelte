@@ -6,19 +6,23 @@
     }
 </script>
 
-<button on:click={(event) => ($ui_store.add_module_request = "Map")}
-    >add map</button
+<button
+    class="box text_level1 noselect"
+    on:click={(event) => ($ui_store.add_module_request = "Map")}>map</button
 >
-<button on:click={(event) => ($ui_store.add_module_request = "Timeline")}
-    >add timeline</button
+<button
+    class="box text_level1 noselect"
+    on:click={(event) => ($ui_store.add_module_request = "Timeline")}
+    >timeline</button
+>
+
+<button
+    class="box text_level1 noselect"
+    on:click={(event) => ($ui_store.add_module_request = "Media")}>media</button
 >
 
 <style>
     button {
-        border: 1px solid #ccc;
-        background-color: black;
-        display: inline-block;
-        cursor: pointer;
-        color: lightgray;
+        color: var(--grey2);
     }
 </style>
