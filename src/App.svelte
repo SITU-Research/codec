@@ -22,7 +22,6 @@
   let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
 
   window.addEventListener("resize", () => {
-    console.log("resized");
     width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
     height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
   });

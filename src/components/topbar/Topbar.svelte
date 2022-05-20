@@ -6,8 +6,8 @@
 
 <div id="top_bar">
     <Filter />
-    <Finder />
     <ModuleTools />
+    <Finder />
 </div>
 
 <style>

@@ -1,28 +1,59 @@
 <script>
     import { ui_store } from "../../stores/store";
 
-    function request_add_module() {
-        dispatch("addModule");
+    function toggle_module(module) {
+        if ($ui_store.modules_in_view.includes(module)) {
+            $ui_store.modules_in_view = $ui_store.modules_in_view.filter(
+                (module_in_view) => module_in_view !== module
+            );
+        } else {
+            $ui_store.modules_in_view.push(module);
+        }
     }
+
+    let modules = ["map", "timeline", "media"];
 </script>
 
-<button
-    class="box text_level1 noselect"
-    on:click={(event) => ($ui_store.add_module_request = "Map")}>map</button
->
-<button
-    class="box text_level1 noselect"
-    on:click={(event) => ($ui_store.add_module_request = "Timeline")}
-    >timeline</button
->
+<div class="vl" />
 
-<button
-    class="box text_level1 noselect"
-    on:click={(event) => ($ui_store.add_module_request = "Media")}>media</button
->
+<div id="view_text" class="text_level1 noselect"><span> view: </span></div>
+
+{#each modules as module}
+    <button
+        class="box text_level1 noselect {$ui_store.modules_in_view.includes(
+            module
+        )
+            ? 'module_button_in_view'
+            : ''}"
+        on:click={() => toggle_module(module)}>{module}</button
+    >
+{/each}
 
 <style>
+    #view_text {
+        color: white;
+        text-align: center;
+    }
+
+    span {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: normal;
+        padding: 1px var(--grid-size) 1px 0;
+    }
+
+    .vl {
+        border-left: 1px solid var(--grey2);
+        height: 100%;
+        margin: 1px var(--grid-size);
+    }
+
     button {
-        color: var(--grey2);
+        margin-right: var(--fontsize);
+    }
+
+    .module_button_in_view {
+        color: white;
+        border-left: 1px solid white;
     }
 </style>

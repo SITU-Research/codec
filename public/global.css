@@ -5,7 +5,7 @@
 	--grey4blue: #1F262B;
 	--grid-size: 10px;
 	--topbar-size: 20px;
-	--shf: 4.9406564584124654e-322;
+	--fontsize: 14px;
 }
 
 html {
@@ -46,12 +46,12 @@ main {
 }
 
 .text_level1 {
-	font-size: 14px;
+	font-size: var(--fontsize);
 	text-transform: uppercase;
 }
 
 .text_level2 {
-	font-size: 14px;
+	font-size: var(--fontsize);
 }
 
 
@@ -91,6 +91,10 @@ textarea {
 	vertical-align: baseline;
 }
 
+button {
+	cursor: pointer;
+}
+
 input {
 	background-color: black;
 	color: var(--grey2)
@@ -112,6 +116,7 @@ button:focus {
 .box {
 	background-color: black;
 	border: 1px solid var(--grey2);
+	color: var(--grey2);
 	border-radius: 2px;
 	box-sizing: border-box;
 }

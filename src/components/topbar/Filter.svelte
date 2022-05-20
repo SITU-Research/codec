@@ -60,13 +60,8 @@
 
 <style>
     #filter_button {
-        /* border: 1px solid #ccc;
-        background-color: black; */
-        /* display: inline-block; */
         z-index: 4;
-        /* padding: 6px 12px; */
         cursor: pointer;
-        color: lightgray;
         height: var(--topbar-size);
     }
 

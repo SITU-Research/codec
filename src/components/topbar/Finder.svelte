@@ -23,6 +23,7 @@
         bind:this={input}
         id="find_video_input"
         type="text"
+        autocomplete="off"
         on:keyup={onKeyup}
         on:focus={() => {
             input_focused = true;
@@ -49,5 +50,21 @@
     .finder_focus {
         border-color: white;
         color: white;
+    }
+
+    ::placeholder {
+        /* Chrome, Firefox, Opera, Safari 10.1+ */
+        color: var(--grey2);
+        opacity: 1; /* Firefox */
+    }
+
+    :-ms-input-placeholder {
+        /* Internet Explorer 10-11 */
+        color: var(--grey2);
+    }
+
+    ::-ms-input-placeholder {
+        /* Microsoft Edge */
+        color: var(--grey2);
     }
 </style>
