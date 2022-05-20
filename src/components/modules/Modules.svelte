@@ -1,148 +1,56 @@
 <script>
-  import { ui_store } from "../stores/store";
-  import { Grid, gridHelp } from "../svelte-grid";
-  import Timeline from "./modules/Timeline.svelte";
+  import { ui_store } from "../../stores/store";
+  import Timeline from "./Timeline.svelte";
   import Map from "./Map.svelte";
-  import Media from "./modules/Media.svelte";
+  import Media from "./Media.svelte";
 
   let resized_wakies = 0;
 
-  const id = () => "_" + Math.random().toString(36).substr(2, 9);
-  let rowHeight = 10;
-  let n_cols = 20;
-  let cols = [[1, n_cols]];
-
-  let h = document.body.clientHeight - 50;
-
-  let items = [
-    {
-      [n_cols]: gridHelp.item({
-        x: 0,
-        y: 0,
-        w: n_cols,
-        h: Math.round(h / (2 * rowHeight)),
-        customDragger: true,
-      }),
-      id: id(),
-      type: "Media",
-    },
-    {
-      [n_cols]: gridHelp.item({
-        x: 0,
-        y: Math.round(h / (2 * rowHeight)),
-        w: n_cols / 2,
-        h: Math.round(h / (2 * rowHeight)),
-        customDragger: true,
-      }),
-      id: id(),
-      type: "Timeline",
-    },
-    {
-      [n_cols]: gridHelp.item({
-        x: n_cols / 2,
-        y: Math.round(h / (2 * rowHeight)),
-        w: n_cols / 2,
-        h: Math.round(h / (2 * rowHeight)),
-        customDragger: true,
-      }),
-      id: id(),
-      type: "Map",
-    },
-  ];
-
-  $: {
-    if ($ui_store.add_module_request) {
-      add($ui_store.add_module_request);
-      $ui_store.add_module_request = null;
-    }
-  }
-
-  const remove = (item) => {
-    items = items.filter((value) => value.id !== item.id);
-    items = gridHelp.adjust(items, n_cols);
-  };
-
-  // INPUT: type of item to add - a module component name eg Timeline
-  const add = (item_type) => {
-    let newItem = {
-      [n_cols]: gridHelp.item({
-        x: 0,
-        y: Math.round(h / (2 * rowHeight)),
-        w: n_cols / 2,
-        h: Math.round(h / (2 * rowHeight)),
-        customDragger: true,
-      }),
-      id: id(),
-      type: item_type,
-    };
-
-    let findOutPosition = gridHelp.findSpace(newItem, items, n_cols);
-
-    newItem = {
-      ...newItem,
-      [n_cols]: {
-        ...newItem[n_cols],
-        ...findOutPosition,
-      },
-    };
-
-    items = [...items, ...[newItem]];
+  let modules_options = {
+    media: Media,
+    map: Map,
+    timeline: Timeline,
   };
 </script>
 
 <div id="modules_container">
-  <Grid
-    fastStart={true}
-    fillSpace={true}
-    {cols}
-    gap={[5, 5]}
-    bind:items
-    {rowHeight}
-    let:item
-    let:dataItem
-    let:movePointerDown
-    on:change={() => {
-      resized_wakies += 1;
-    }}
-    on:addModule={(event) => console.log("add module event received!!")}
-  >
+  {#each $ui_store.modules_in_view as module}
     <div class="box module">
       <div class="module_topbar">
-        {#if item.customDragger}
-          <div class="module_dragger" on:pointerdown={movePointerDown}>
-            &#x2725;
-          </div>
-        {/if}
-        <div class="module_title text_level1">{dataItem.type}</div>
+        <div class="module_title text_level1">{module}</div>
         <div
           class="module_close"
           on:pointerdown={(e) => e.stopPropagation()}
-          on:click={() => remove(dataItem)}
+          on:click={() => console.log("remove item")}
         >
           &#215;
         </div>
       </div>
       <div class="module_content">
-        {#if dataItem.type == "Map"}
-          <Map {resized_wakies} />
-        {:else if dataItem.type == "Timeline"}
-          <Timeline />
-        {:else if dataItem.type == "Media"}
-          <Media />
-        {/if}
+        <svelte:component this={modules_options[module]} />
       </div>
     </div>
-  </Grid>
+  {/each}
 </div>
 
 <style>
   #modules_container {
-    height: 96%;
+    height: calc(100vh - 6 * var(--grid-size));
     width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-items: stretch;
   }
 
-  :global(.svlt-grid-resizer) {
-    z-index: 2;
+  .module {
+    display: flex;
+    flex-flow: column nowrap;
+    flex-grow: 1;
+    margin-bottom: var(--grid-size);
+  }
+
+  .module:not(:first-child) {
+    margin-left: var(--grid-size);
   }
 
   .module_topbar {
@@ -158,10 +66,6 @@
     line-height: 30px;
     width: 30px;
     height: 30px;
-  }
-
-  .module_dragger {
-    cursor: pointer;
   }
 
   .module_title {

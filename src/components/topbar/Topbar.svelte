@@ -13,9 +13,10 @@
 <style>
     #top_bar {
         height: var(--topbar-size);
+        width: 100%;
         display: flex;
         flex-flow: row nowrap;
         z-index: 4;
-        padding: calc(var(--grid-size) / 2);
+        margin-bottom: var(--grid-size);
     }
 </style>

@@ -4,7 +4,7 @@
   import LocalMediaInput from "./components/LocalMediaInput.svelte";
   import Topbar from "./components/topbar/Topbar.svelte";
   import Tooltip from "./components/Tooltip.svelte";
-  import Modules from "./components/Modules.svelte";
+  import Modules from "./components/modules/Modules.svelte";
   import {
     media_store,
     events_store,
@@ -17,6 +17,15 @@
     mouse_xy.x = event.clientX;
     mouse_xy.y = event.clientY;
   }, 5);
+
+  let width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
+  let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
+
+  window.addEventListener("resize", () => {
+    console.log("resized");
+    width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
+    height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
+  });
 
   onMount(() => {
     // let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
@@ -236,7 +245,10 @@
   <meta name="robots" content="noindex nofollow" />
   <html lang="en" />
 </svelte:head>
-<main on:mousemove={handleMouseMove}>
+<main
+  on:mousemove={handleMouseMove}
+  style="width:{width_mod_grid}px; height:{height_mod_grid}px;"
+>
   {#await fetch_google_sheet_data()}
     <div class="modal_container">
       <div class="box modal_content text_level2">
