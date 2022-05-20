@@ -7,7 +7,7 @@
                 (module_in_view) => module_in_view !== module
             );
         } else {
-            $ui_store.modules_in_view.push(module);
+            $ui_store.modules_in_view = [...$ui_store.modules_in_view, module];
         }
     }
 
@@ -54,6 +54,6 @@
 
     .module_button_in_view {
         color: white;
-        border-left: 1px solid white;
+        border: 1px solid white;
     }
 </style>

@@ -11,6 +11,16 @@
     map: Map,
     timeline: Timeline,
   };
+
+  function toggle_module(module) {
+    if ($ui_store.modules_in_view.includes(module)) {
+      $ui_store.modules_in_view = $ui_store.modules_in_view.filter(
+        (module_in_view) => module_in_view !== module
+      );
+    } else {
+      $ui_store.modules_in_view = [...$ui_store.modules_in_view, module];
+    }
+  }
 </script>
 
 <div id="modules_container">
@@ -21,7 +31,7 @@
         <div
           class="module_close"
           on:pointerdown={(e) => e.stopPropagation()}
-          on:click={() => console.log("remove item")}
+          on:click={() => toggle_module(module)}
         >
           &#215;
         </div>
