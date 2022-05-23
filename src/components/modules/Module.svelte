@@ -2,23 +2,33 @@
     import { ui_store } from "../../stores/store";
     import Timeline from "./Timeline.svelte";
     import Map from "./Map.svelte";
-    import Media from "./Media.svelte";
+    import MediumVideo from "./MediumVideo.svelte";
 
     export let module;
+    export let medium;
 
     let modules_options = {
-        media: Media,
+        media: MediumVideo,
         map: Map,
         timeline: Timeline,
     };
 
-    function toggle_module(module) {
-        if ($ui_store.modules_in_view.includes(module)) {
+    function close_module(module, medium) {
+        // if X on a medium and there is more than one in view
+        // just remove medium from view
+        if (module.includes("medi") && $ui_store.media_in_view.length > 1) {
+            $ui_store.media_in_view = $ui_store.media_in_view.filter(
+                (exist_UAR) => exist_UAR !== medium.UAR
+            );
+        } else {
             $ui_store.modules_in_view = $ui_store.modules_in_view.filter(
                 (module_in_view) => module_in_view !== module
             );
-        } else {
-            $ui_store.modules_in_view = [...$ui_store.modules_in_view, module];
+            if (module.includes("medi")) {
+                $ui_store.media_in_view = $ui_store.media_in_view.filter(
+                    (exist_UAR) => exist_UAR !== medium.UAR
+                );
+            }
         }
     }
 </script>
@@ -30,17 +40,20 @@
         : 'none'}"
 >
     <div class="module_topbar">
-        <div class="module_title text_level1">{module}</div>
+        <div class="module_title text_level1">
+            {module}
+            {module.includes("medi") ? ": " + medium?.UAR : ""}
+        </div>
         <div
             class="module_close"
             on:pointerdown={(e) => e.stopPropagation()}
-            on:click={() => toggle_module(module)}
+            on:click={() => close_module(module, medium)}
         >
             &#215;
         </div>
     </div>
     <div class="module_content">
-        <svelte:component this={modules_options[module]} />
+        <svelte:component this={modules_options[module]} {medium} />
     </div>
 </div>
 
@@ -48,12 +61,8 @@
     .module {
         display: flex;
         flex-flow: column nowrap;
-        flex-grow: 1;
+        flex: 1 1 auto;
         margin-bottom: var(--grid-size);
-    }
-
-    .media_module {
-        flex: 1 0 100%;
     }
 
     .timeline_module {
