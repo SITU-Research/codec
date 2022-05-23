@@ -49,6 +49,7 @@
           parseFloat($platform_config_store["Map start longitude"]),
           parseFloat($platform_config_store["Map start latitude"]),
         ],
+        doubleClickZoom: false,
       }}
       zoom={parseFloat($platform_config_store["Map start zoom"])}
     >
