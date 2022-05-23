@@ -83,7 +83,7 @@
 
       // date time string to datetime object
       event.start_date_time = localtoUTCdatetimeobj(
-        new Date(event["datetime (YYYY-MM-DD HH:MM:SS)"])
+        new Date(event["datetime (yyyy-mm-dd hh:mm:ss)"])
       );
       //create 10 second block for each event
       event.end_date_time = new Date(event.start_date_time.getTime() + 10000);

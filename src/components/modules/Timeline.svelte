@@ -186,7 +186,6 @@
 
     // add event listener for when timeline is dragged or zoomed
     main_timeline.on("rangechange", function (properties) {
-      updateBookendsToMatchTimeline(properties);
       updateCurrentTimeToMatchTimeline(properties);
     });
 
@@ -207,22 +206,12 @@
           document.getElementsByClassName(
             "current_time_line"
           )[0].style.display = "block";
-          document.getElementById("current_time_text").style.display = "block";
         } catch (error) {
           console.log(error);
         }
       }
     });
   });
-
-  function updateBookendsToMatchTimeline(properties) {
-    document.getElementById("main_start_bookend").textContent = date2month_day(
-      properties.start
-    );
-    document.getElementById("main_end_bookend").textContent = date2month_day(
-      properties.end
-    );
-  }
 
   function updateCurrentTimeToMatchTimeline(properties) {
     let current_time = new Date(
@@ -239,16 +228,6 @@
     let current_time_line =
       main_timeline.customTimes[main_timeline.customTimes.length - 1];
     current_time_line.hammer.off("panstart panmove panend");
-
-    let current_time_text_el = document.getElementById("current_time_text");
-    let main_timeline_boundingrect = document
-      .getElementById("main_timeline")
-      .getBoundingClientRect();
-    current_time_text_el.style.left =
-      main_timeline_boundingrect.left + main_timeline_boundingrect.width / 2;
-
-    current_time_text_el.children[1].textContent = date2time(current_time);
-    current_time_text_el.children[2].textContent = date2month_day(current_time);
   }
 
   function date2month_day(date) {
@@ -281,10 +260,6 @@
     if (properties.customTime !== "current_time_line") {
       element.style.display = "block";
       text.innerHTML = $events_store[id].description;
-      // optional removal of custom time marker
-      document.getElementsByClassName("current_time_line")[0].style.display =
-        "none";
-      document.getElementById("current_time_text").style.display = "none";
     }
   }
 
@@ -370,13 +345,6 @@
         background-color: #d90c1e;
         width: 5px;
         opacity: 0.5;
-      }
-
-      #current_time_text {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 12px;
       }
 
       .triangle-up {
