@@ -1,5 +1,7 @@
 <script>
   import { Map, Marker, controls } from "@beyonk/svelte-mapbox";
+  import { throttle } from "underscore";
+  import { watchResize } from "svelte-watch-resize";
   import {
     platform_config_store,
     media_store_filtered,
@@ -8,11 +10,10 @@
   const { NavigationControl, ScaleControl } = controls;
 
   let zoom, mapComponent;
-  export let resized_wakies;
-  $: {
-    resized_wakies = resized_wakies;
+
+  let handleResize = throttle(() => {
     if (mapComponent) mapComponent.resize();
-  }
+  }, 500);
 
   function onMarkerClick(event) {
     let UAR = event.target.dataset.uar; //automatically lowercased
@@ -37,7 +38,7 @@
 </script>
 
 <!-- svelte-ignore missing-declaration -->
-<span class="map_container">
+<span class="map_container" use:watchResize={handleResize}>
   {#if $platform_config_store["Map start latitude"] !== undefined}
     <Map
       bind:this={mapComponent}
