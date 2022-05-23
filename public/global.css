@@ -5,7 +5,7 @@
 	--grey4blue: #1F262B;
 	--grid-size: 10px;
 	--topbar-size: 20px;
-	--fontsize: 14px;
+	--font-size: 14px;
 }
 
 html {
@@ -46,12 +46,12 @@ main {
 }
 
 .text_level1 {
-	font-size: var(--fontsize);
+	font-size: var(--font-size);
 	text-transform: uppercase;
 }
 
 .text_level2 {
-	font-size: var(--fontsize);
+	font-size: var(--font-size);
 }
 
 

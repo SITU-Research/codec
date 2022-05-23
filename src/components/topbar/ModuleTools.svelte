@@ -14,8 +14,6 @@
     let modules = ["map", "timeline", "media"];
 </script>
 
-<div class="vl" />
-
 <div id="view_text" class="text_level1 noselect"><span> view: </span></div>
 
 {#each modules as module}
@@ -42,14 +40,8 @@
         padding: 1px var(--grid-size) 1px 0;
     }
 
-    .vl {
-        border-left: 1px solid var(--grey2);
-        height: 100%;
-        margin: 1px var(--grid-size);
-    }
-
     button {
-        margin-right: var(--fontsize);
+        margin-right: var(--font-size);
     }
 
     .module_button_in_view {

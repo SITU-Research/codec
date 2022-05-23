@@ -43,7 +43,7 @@
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        margin-left: 20px;
+        margin-right: var(--font-size);
         height: (--topbar-size);
     }
 
