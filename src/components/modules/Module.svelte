@@ -65,10 +65,6 @@
         margin-bottom: var(--grid-size);
     }
 
-    .timeline_module {
-        margin-right: var(--grid-size);
-    }
-
     .module_topbar {
         width: 100%;
         display: flex;
@@ -96,5 +92,13 @@
         flex-grow: 2;
         min-width: 0;
         min-height: 0;
+    }
+
+    .media_module:not(:first-child) {
+        margin-left: var(--grid-size);
+    }
+
+    .timeline_module {
+        margin-right: var(--grid-size);
     }
 </style>
