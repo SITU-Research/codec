@@ -4,7 +4,8 @@
 </script>
 
 <div class="media">
-  {#each $ui_store.media_in_view as UAR}
+  <!-- add (UAR) means it's a keyed each block, svelte tracks better -->
+  {#each $ui_store.media_in_view as UAR (UAR)}
     <Module module={"media"} medium={$media_store[UAR]} />
   {/each}
 </div>
