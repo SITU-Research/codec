@@ -21,10 +21,10 @@
   let width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
   let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
 
-  window.addEventListener("resize", () => {
+  let handleWindowResize = throttle(() => {
     width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
     height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
-  });
+  }, 500);
 
   onMount(() => {
     // let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
@@ -239,6 +239,7 @@
   }
 </script>
 
+<svelte:window on:resize={handleWindowResize} />
 <svelte:head>
   <title>Investigative Platform</title>
   <meta name="robots" content="noindex nofollow" />
