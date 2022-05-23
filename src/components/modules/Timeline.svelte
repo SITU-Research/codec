@@ -304,140 +304,91 @@
       border: none;
     }
   </style>
-  <div id="timeline_top">
-    <div id="main_start_bookend_container">
-      <div id="main_start_bookend" />
-    </div>
-    <div
-      bind:this={container}
-      id="main_timeline"
-      on:mouseout={() => {
-        document.getElementById("hover_box").style.display = "none";
-      }}
-    >
-      <style>
-        #main_timeline .vis-timeline {
-          border-top: none !important;
-          border-bottom: none !important;
-        }
+  <div
+    bind:this={container}
+    id="main_timeline"
+    on:mouseout={() => {
+      document.getElementById("hover_box").style.display = "none";
+    }}
+    on:blur={() => {
+      document.getElementById("hover_box").style.display = "none";
+    }}
+  >
+    <style>
+      #main_timeline .vis-timeline {
+        border: none !important;
+      }
 
-        .vis-time-axis .vis-grid.vis-minor,
-        .vis-time-axis .vis-grid.vis-major {
-          border-color: rgb(39, 39, 39);
-        }
+      .vis-time-axis .vis-grid.vis-minor,
+      .vis-time-axis .vis-grid.vis-major {
+        border-color: rgb(39, 39, 39);
+      }
 
-        .vis-item {
-          border-color: rgb(39, 39, 39);
-          background-color: white;
-          border-radius: 10px;
-          z-index: 1;
-        }
+      .vis-item {
+        border-color: rgb(39, 39, 39);
+        background-color: white;
+        border-radius: 3px;
+        z-index: 1;
+      }
 
-        #main_timeline .vis-item {
-          height: 15px;
-        }
+      #main_timeline .vis-item {
+        height: 40px;
+      }
 
-        .vis-item.vis-selected {
-          border-color: white;
-          fill: white;
-          background-color: white;
-        }
+      .vis-item.vis-selected {
+        border-color: white;
+        fill: white;
+        background-color: white;
+      }
 
-        #main_timeline .vis-item.vis-range {
-          border-style: solid;
-          border-radius: 10px;
-          box-sizing: border-box;
-          border-color: white;
-          border-width: 3px;
-        }
+      #main_timeline .vis-item.vis-range {
+        border-style: solid;
+        border-radius: 3px;
+        box-sizing: border-box;
+        border-color: white;
+        border-width: 3px;
+      }
 
-        .vis-item.clicked {
-          background-color: #d90c1e;
-        }
+      .vis-item.clicked {
+        background-color: #d90c1e;
+      }
 
-        .vis-item.hovered {
-          border-color: #d90c1e !important;
+      .vis-item.hovered {
+        border-color: #d90c1e !important;
 
-          fill: none;
-        }
+        fill: none;
+      }
 
-        .vis-custom-time {
-          background-color: white;
-          width: 3px;
-          cursor: default;
-          opacity: 0.2;
-        }
+      .vis-custom-time {
+        background-color: white;
+        width: 3px;
+        cursor: default;
+        opacity: 0.2;
+      }
 
-        .vis-custom-time.current_time_line {
-          background-color: #d90c1e;
-          width: 5px;
-          opacity: 0.5;
-        }
+      .vis-custom-time.current_time_line {
+        background-color: #d90c1e;
+        width: 5px;
+        opacity: 0.5;
+      }
 
-        #current_time_text {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 12px;
-        }
+      #current_time_text {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+      }
 
-        .triangle-up {
-          width: 0;
-          height: 0;
-          border-left: 25px solid transparent;
-          border-right: 25px solid transparent;
-          border-bottom: 50px solid #555;
-        }
-
-        #main_start_bookend_container,
-        #main_end_bookend_container {
-          height: 100%;
-          width: 1.4em;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          border: 1px solid white;
-          overflow: visible;
-          position: relative;
-        }
-
-        #main_start_bookend_container {
-          border-top-left-radius: 20px;
-          border-bottom-left-radius: 20px;
-          margin-left: 1%;
-        }
-
-        #main_end_bookend_container {
-          border-top-right-radius: 20px;
-          border-bottom-right-radius: 20px;
-          margin-right: 1%;
-        }
-
-        #main_start_bookend,
-        #main_end_bookend {
-          position: absolute;
-          bottom: 0;
-          left: 0px;
-          width: 100px;
-          transform: rotate(-90deg);
-          transform-origin: top left;
-          text-align: left;
-        }
-      </style>
-      <div id="hover_box">
-        <p id="eventDescription" />
-      </div>
-    </div>
-    <div id="main_end_bookend_container">
-      <div id="main_end_bookend" />
-    </div>
-  </div>
-  <div id="timeline_middle">
-    <div id="current_time_text">
-      <div class="triangle_up" />
-      <div id="line1" />
-      <div id="line2" />
+      .triangle-up {
+        width: 0;
+        height: 0;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-bottom: 50px solid #555;
+      }
+    </style>
+    <div id="hover_box">
+      <p id="eventDescription" />
     </div>
   </div>
 </div>
@@ -452,26 +403,9 @@
     align-items: stretch;
   }
 
-  #timeline_top {
-    width: 100%;
-    height: 80%;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: center;
-  }
-
   #main_timeline {
-    width: 95%;
+    width: 100%;
     height: 100%;
-    border-top: 1px solid white;
-    border-bottom: 1px solid white;
-  }
-
-  #timeline_middle {
-    height: 40px;
-    display: flex;
-    flex-direction: column;
   }
 
   #hover_box {
@@ -490,33 +424,5 @@
     background: rgba(0, 0, 0, 0.85);
     color: white;
     padding: 3%;
-  }
-
-  #timeline_bottom {
-    width: 100%;
-    height: 20%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    align-content: center;
-  }
-
-  #mini_timeline {
-    height: 90%;
-    flex-grow: 200;
-    overflow: visible !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  #mini_start_bookend,
-  #mini_end_bookend {
-    /* width: 5%; */
-    flex-grow: 1;
-    margin: 1%;
-    text-anchor: middle;
-    font-size: 0.9em;
   }
 </style>
