@@ -38,7 +38,6 @@ You will need a folder with all your media assets, each named as their [UAR (uni
 
 Another media file storage solution is to use a cloud storage service such as Amazon Web Services’ S3. After having uploaded the necessary files to an S3 bucket and the necessary url links filled in the spreadsheet, any user with access to the platform can then play the files without needing a local copy or a local drive streaming solution. It thus makes public dissemination easier. However, it is slightly more technically difficult to set up and is not as secure. (If you choose this option, make sure that, in the Platform config sheet, 'Source of media files' is set to 'url'.)
 </details>
-<br>
 
 If you already have a spreadsheet with UARs and links, we recommed using Amnesty Citizen Evidence Lab's [Online Video Wrangler](https://citizenevidence.org/2021/03/25/online-video-wrangler/) to automatically download all the media files.
 
@@ -94,7 +93,6 @@ You will need to enable the Google sheets API and create a Google service accoun
 
 </details>
 
-<br>
 
 ### 4. A deployed version of Codec
 
@@ -111,6 +109,7 @@ will need to create Mapbox account too.
 
 ```
 git clone https://github.com/SITU-Research/codec
+cd codec
 npm i
 touch .env
 netlify dev
