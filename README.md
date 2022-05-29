@@ -1,6 +1,6 @@
 <img src="codec white on black logo cropped center.png" alt="SITU Research and Codec logos">
 
-Codec is a collaborative tool for managing video evidence.
+Codec is a collaborative tool for managing video evidence. A public demo site is available [here](https://codec-demo.netlify.app/)
 
 A response to the deluge of visual information flowing out of conflict environments and contested events, Codec is designed to support the work of researchers, journalists, legal teams, activist groups and others in adjacent fields. While the tool has many potential applications, the driving goal has been to further investigations, amplify truth, and pursue accountability for human rights abuses. The interface is a modular system split into three components: a timeline, a map, and a media player that allows users to securely synthesize large data sets of multimedia assets across the time and space of an event or series of events.
 
@@ -12,6 +12,8 @@ Our goal with releasing this tool open-source is two fold: <br>
 \- to open it up to others in similar fields with software development skills to build a shared tool
 
 You can learn more about the project on [our website [UPDATE WITH LINK]](https://www.situ.nyc/research/codec).
+
+If you'd like to work with us on using or developing Codec, please fill out [this form](https://forms.gle/7Pg7GPZmYpN6CVSa9). As a small team we won't be able to work with all collaborators, but we will do our best to support serious inquiries. We have written out details instructions below for you to get started without the need for direct contact.
 
 ***
 
