@@ -11,8 +11,6 @@ Our goal with releasing this tool open-source is two fold: <br>
 \- to make it easily accessible for folks doing similar work <br>
 \- to open it up to others in similar fields with software development skills to build a shared tool
 
-You can learn more about the project on [our website [UPDATE WITH LINK]](https://www.situ.nyc/research/codec).
-
 If you'd like to work with us on using or developing Codec, please fill out [this form](https://forms.gle/7Pg7GPZmYpN6CVSa9). As a small team we won't be able to work with all collaborators, but we will do our best to support serious inquiries. We have written out details instructions below for you to get started without the need for direct contact.
 
 ***
