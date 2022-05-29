@@ -43,18 +43,78 @@ If you already have a spreadsheet with UARs and links, we recommed using Amnesty
 
 ### 2. A googlesheets document
 
-Next you will need a properly set up googlesheet
-- columns
-- platform config sheet
-- shared with the google service account you create below
-- requirements 'Platform config' sheet with the following columns...
-- first column should not be empy for any row (e.g. have it be the uar)
-- should have a non empty column header after all meaningful columns
+Next you will need a properly set up googlesheet. A template is available [here](https://docs.google.com/spreadsheets/d/1gUMlUpOvRWUkG10lkWk8zebtmkzK9R0Azv6inve94h4/edit?usp=sharing) - feel free to duplicate and fill it with your own information. The template includes data validation on important cells to verify that the manually inputted value's format matches the expected format (e.g. time in HH-MM-SS format). More on the expected format below.
+
+Importantly, make sure that this googlesheets document is shared with the google service account you create in the next step. In step [4](#4-a-deployed-version-of-codec), you will need your googlesheet document id, which is in the url `https://docs.google.com/spreadsheets/d/YOUR SPREADSHEET ID IS HERE/edit#gid=0` as per this [documentation](https://developers.google.com/sheets/api/guides/concepts)
+
+
+
+<details>
+
+<summary>
+Detailed googlesheet format requirements (click to expand)
+</summary>
+
+Codec expects a googlesheet with the following characteristics:
+
+
+<details>
+
+<summary>
+- A tab named 'Platform config' with the following rows:
+</summary>
+
+- **Map start latitude**: the center latitude where the map loads, in decimal format e.g. 40.806
+- **Map start longitude**: the center longitude where the map loads, in decimal format e.g. -73.920
+- **Map start zoom**: the initial zoom level where the map loads, in decimal format e.g. 16
+- **Timeline begin datetime**: the date and time when the timeline begins, in YYYY-MM-DD HH-MM-SS format e.g. 2020-06-04 19:56:00
+- **Timeline end datetime**: the date and time when the timeline ends, in YYYY-MM-DD HH-MM-SS format e.g. 2020-06-04 20:06:00
+- **Source of media files**: where to load the media files from, either 'local' to prompt the user to select them from their machine or 'url' to indicate the files should be loaded from their link
+- **Title of tab with media assets**: the name of the tab containing information about the media assets, e.g. 'media assets'
+- **Title of tab with events**: the name of the tab containing information about the events, e.g. 'events'
+- **Title of column used for chronolocation**: within the media assets tab, name of the column used to locate assets on the timeline, e.g. 'Chronolocation (YYYY-MM-DD HH:MM:SS)'
+- **Title of column used for duration**: within the media assets tab, name of the column used to draw the duration of assets on the timeline, e.g. 'Asset duration (HH:MM:SS)'
+- **Title of column used for latitude**: within the media assets tab, name of the column with latitude used to locate assets on the map, e.g. 'Latitude (decimal)'
+- **Title of column used for longitude**: within the media assets tab, name of the column with longitude used to locate assets on the map, e.g. 'Longitude (decimal)'
+- **Title of column used for url**: within the media assets tab, if 'Source of media files' set to 'url, name of the column with the link to the media file
+- **Rank of assets row with column names**: within the media assets tab, which row contains the column names, e.g. if it's in the second row from the top, write '2'
+- **Rank of events row with column names**: within the events tab, which row contains the column names, e.g. if it's in the first row from the top, write '1'
+</details>
+
+<details>
+
+<summary>
+- A tab with details on the media assets, with the following characteristics:
+</summary>
+
+- the first column should be the UAR (Unique Asset Reference) an alphanumeric code that is unique to each media asset, e.g. 'bx010'
+- to the right of all the column, there should be a column with some content such that Codec can read all the data, e.g. in cell AH 1 in the template: 'END'
+- a column to indicate asset chronolocation
+- a column to indicate asset latitude
+- a column to indicate asset longitude
+- if using cloud hosted media files, a column to indicate asset file link
+- column with boolean (i.e. true/false) values will be automatically filterable in the Codec user interface. We recommend using checkboxes to avoid typos (select whole column below column name, Insert > Checkbox)
+</details>
+
+
+<details>
+
+<summary>
+- A tab with details on the events to mark vertical lines on the timeline (can be empty), with the following characteristics:
+</summary>
+
+- a column titled 'Datetime (YYYY-MM-DD HH:MM:SS)': to indicate where to draw the event on the timeline, e.g. '2020-06-04 20:00:00'
+- a column titled 'Event': text describing the event, e.g. 'Curfew goes into effect'
+</details>
+
+
+</details>
+
+
 
 ### 3. A google service account
 
 You will need to enable the Google sheets API and create a Google service account to authorize Codec to read your googlesheet. This process is slightly more technical but relatively straightforward for non-coders. The instruction below are paraphrased from the [documentation](https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication) of the [google-spreadsheet library](https://theoephraim.github.io/node-google-spreadsheet/) used in this project:
-
 
 
 <details>
@@ -93,19 +153,30 @@ You will need to enable the Google sheets API and create a Google service accoun
 
 </details>
 
+Once you have a google service account, share the googlesheets document you created above with the google service account email shown in the JSON file (which you can open with any text editor).
+
+You will also need the information in the JSON file in the following step.
+
 
 ### 4. A deployed version of Codec
 
-You can deploy Codec without any coding with the button below. It will prompt you to create a free Netlify account if you don't already have one.
+Finally, you will need to deploy a customized Codec instance. For this you will need the JSON file you created in step [3](#3-a-google-service-account), a (free) Github account, a (free) Netlify account, and a (free) Mapbox account to get your public access token (visible in your [account page](https://account.mapbox.com/)). With these in hand, you can deploy Codec without any coding with the button below. It will prompt you to create a free Netlify account if you don't already have one.
 
-
-fill in necessary env variables on netlify ui
-will need to create Mapbox account too.
+When prompted, fill in the following environment variables:
+- GOOGLE_SHEET_ID: your googlesheet document id
+- GOOGLE_SERVICE_ACCOUNT_EMAIL: your google service account email address
+- GOOGLE_CLIENT_PRIVATE_KEY: your google service account private key
+- MAPBOX_ACCESS_TOKEN: your mapbox access token
 
 [![Deploy to netlify button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/SITU-Research/codec)
 
 
+
+***
+
 ## Instructions for developers
+
+For development, clone or fork the repository and make sure to use the netlify cli to run the app, in order to simulate the netlify function that fetches the googlesheet document data. By default, the netlify cli will look for an .env file with the same environemnt variables as above.
 
 ```
 git clone https://github.com/SITU-Research/codec
@@ -125,26 +196,29 @@ If your deployed Codec tool is not displaying properly, here is a short list of 
 
 #### Symptom: The tool displays an error message on load.
 #### Potential solutions:
-- 
+- Ensure the googlesheet document id is correctly inputted into Netlify. You can change it by navigating to [Netlify](https://app.netlify.com/), selecting your site > Site Settings > Build & deploy > Environment > Edit variables and changing the value of GOOGLE_SHEET_ID.
+- Ensure the google service account email is correctly inputted into Netlify. You can change it as above.
+- Ensure the google service account email is shared with the googlesheets document.
+
 
 <br>
 
 #### Symptom: The tool loads without error but no media appears on the timeline and/or map
 #### Potential solutions:
-- make sure you have correctly formatted
-- make sure timeline/map is correctly scoped
+- Ensure you have correctly formatted the fields in the googlesheet.
+- Ensure timeline/map are correctly centered and zoomed to your media files chrono- and geo-location.
 
 <br>
 
 #### Symptom: The map is not loading correctly
 #### Potential solutions:
-- mapbox token
+- Ensure the mapbox access token is correctly inputted into Netlify. You can change it by navigating to [Netlify](https://app.netlify.com/), selecting your site > Site Settings > Build & deploy > Environment > Edit variables and changing the value of MAPBOX_ACCESS_TOKEN
 
 <br>
 
 #### Symptom: The media are not displaying correctly
 #### Potential solutions:
-- media files named properly
+- Ensure the media files are name.d by their UAR
 
 
 Disclaimer: We won't be able to troubleshoot with all Codec users directly. We encourage folks who come up against hurdles to create an issue on this repository, tag it with the **'user help needed'** label, and help one another out.
@@ -152,3 +226,5 @@ Disclaimer: We won't be able to troubleshoot with all Codec users directly. We e
 ***
 
 ## Contributing
+
+If you are interesting in contributing, thank you! Please take a look at the issues for bugs, enhancements etc to see what would be most helpful. Then fork the repo, create a pull request and we will integrate as soon as possible. Examples of useful contributions include: synced media playback, display of images and other media types, flexibility to use other spreadsheet sources such as Excel or OneDrive.

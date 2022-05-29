@@ -12,3 +12,9 @@
 
 [[plugins]]
     package = "netlify-plugin-inline-functions-env"
+
+[template.environment]
+  GOOGLE_SHEET_ID = "your googlesheet document id"
+  GOOGLE_SERVICE_ACCOUNT_EMAIL = "your google service account email address"
+  GOOGLE_CLIENT_PRIVATE_KEY = "your google service account private key"
+  MAPBOX_ACCESS_TOKEN = "your mapbox access token"
