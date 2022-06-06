@@ -3,6 +3,7 @@
 	--grey2: #41484E;
 	--grey3: #2C2C2C;
 	--font-size: 14px;
+	--fontsmall-size: 11px;
 	--grey4blue: #1F262B;
 	--grid-size: 10px;
 	--topbar-size: 20px;
@@ -57,6 +58,11 @@ main {
 	font-size: var(--font-size);
 }
 
+.text_level3 {
+	font-size: var(--fontsmall-size);
+	line-height: var(--font-size);
+}
+
 
 
 ::-webkit-scrollbar {
@@ -94,6 +100,10 @@ textarea {
 	vertical-align: baseline;
 }
 
+a {
+	color: inherit;
+}
+
 button {
 	cursor: pointer;
 }
@@ -127,7 +137,7 @@ button:focus {
 .modal_container {
 	position: fixed;
 	/* Stay in place */
-	z-index: 1;
+	z-index: 2;
 	/* Sit on top */
 	left: 0;
 	top: 0;
