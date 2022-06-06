@@ -39,7 +39,7 @@ You will need a folder with all your media assets, each named as their [UAR (uni
 Another media file storage solution is to use a cloud storage service such as Amazon Web Services’ S3. After uploading the necessary files to an S3 bucket and the necessary url links filled in the spreadsheet, any user with access to the platform can then play the files without needing a local copy or a local drive streaming solution. This makes public dissemination easier. However, it is slightly more technically difficult to set up and is not as secure. (If you choose this option, make sure that, in the Platform config sheet, 'Source of media files' is set to 'url'.)
 </details>
 
-If you already have a spreadsheet with UARs and links, we recommend using Amnesty Citizen Evidence Lab's [Online Video Wrangler](https://citizenevidence.org/2021/03/25/online-video-wrangler/) to automatically download all the media files.
+If you already have a spreadsheet with UARs and links, we recommend using Amnesty Citizen Evidence Lab's [Online Video Wrangler](https://docs.google.com/document/d/e/2PACX-1vQd9v5U2doMwskQtkqBlwpUL0jM9Jua6I6tylan4slngL27cuX3h1ogv54u1IxCV8wjrmaltDFk2DQ_/pub) to automatically download all the media files.
 
 ### 2. A googlesheets document
 
