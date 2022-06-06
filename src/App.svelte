@@ -2,12 +2,14 @@
   import { onMount } from "svelte";
   import { throttle } from "underscore";
   import LocalMediaInput from "./components/LocalMediaInput.svelte";
-  import Topbar from "./components/Topbar.svelte";
+  import Topbar from "./components/topbar/Topbar.svelte";
   import Tooltip from "./components/Tooltip.svelte";
-  import Modules from "./components/Modules.svelte";
+  import Modules from "./components/modules/Modules.svelte";
+  import FilterPanel from "./components/modules/FilterPanel.svelte";
   import {
     media_store,
     events_store,
+    ui_store,
     filter_toggles,
     platform_config_store,
   } from "./stores/store";
@@ -17,6 +19,14 @@
     mouse_xy.x = event.clientX;
     mouse_xy.y = event.clientY;
   }, 5);
+
+  let width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
+  let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
+
+  let handleWindowResize = throttle(() => {
+    width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
+    height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
+  }, 500);
 
   onMount(() => {
     let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
@@ -75,7 +85,7 @@
 
       // date time string to datetime object
       event.start_date_time = localtoUTCdatetimeobj(
-        new Date(event["datetime (YYYY-MM-DD HH:MM:SS)"])
+        new Date(event["datetime (yyyy-mm-dd hh:mm:ss)"])
       );
       //create 10 second block for each event
       event.end_date_time = new Date(event.start_date_time.getTime() + 10000);
@@ -231,14 +241,27 @@
   }
 </script>
 
+<svelte:window on:resize={handleWindowResize} />
 <svelte:head>
   <title>Investigative Platform</title>
   <meta name="robots" content="noindex nofollow" />
   <html lang="en" />
 </svelte:head>
-<main on:mousemove={handleMouseMove}>
+
+<FilterPanel />
+
+<main
+  on:mousemove={handleMouseMove}
+  style="width:{width_mod_grid}px; height:{height_mod_grid}px; left:{$ui_store.filter_in_view
+    ? `var(--filtermenu-size)`
+    : `0`} "
+>
   {#await fetch_google_sheet_data()}
-    <p>fetching initial data from the spreadsheet...</p>
+    <div class="modal_container">
+      <div class="box modal_content text_level2">
+        fetching initial data from the spreadsheet...
+      </div>
+    </div>
   {:then}
     {#if $platform_config_store["Source of media files"] && $platform_config_store["Source of media files"].includes("local")}
       <LocalMediaInput />
@@ -247,39 +270,12 @@
     <Topbar />
     <Modules />
   {:catch error}
-    <p>Something went wrong, please reload the page</p>
-    <p>{error.message}</p>
+    <div class="modal_container">
+      <div class="box modal_content text_level2">
+        <p>something went wrong, see below for error</p>
+        <p>{error.message}</p>
+        <p>please reload the page</p>
+      </div>
+    </div>
   {/await}
 </main>
-
-<style>
-  * {
-    font-family: "Nunito", sans-serif;
-    color: lightgray !important;
-    /* background-color: rgb(94, 94, 94) */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  main {
-    background-color: rgb(27, 27, 27);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  ::-webkit-scrollbar {
-    display: none;
-    width: 0px; /* Remove scrollbar space */
-    background: transparent; /* Optional: just make scrollbar invisible */
-  }
-
-  :global(input:focus),
-  :global(select:focus),
-  :global(textarea:focus),
-  :global(button:focus) {
-    outline: none;
-  }
-</style>

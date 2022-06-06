@@ -50,7 +50,7 @@
     id="tooltip"
     style="top:{mouse_xy.y}px; left:{mouse_xy.x}px"
     bind:this={tooltip}
-    class={overflow_compensate_class}
+    class={"box " + overflow_compensate_class}
   >
     <tr>
       <td>UAR</td>
@@ -87,18 +87,13 @@
     left: 0;
     pointer-events: none;
     background: black;
-    border: 1px solid white;
-    border-collapse: collapse;
     width: 250px;
-    font-size: 13px;
-  }
-
-  tr {
-    border-bottom: 1px solid white;
+    color: white;
   }
 
   tr > td:first-child {
-    color: rgb(100, 100, 100);
+    color: var(--grey2);
+    text-transform: uppercase;
   }
 
   .translate_left {
