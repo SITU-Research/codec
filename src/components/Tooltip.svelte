@@ -50,7 +50,7 @@
     id="tooltip"
     style="top:{mouse_xy.y}px; left:{mouse_xy.x}px"
     bind:this={tooltip}
-    class={"box " + overflow_compensate_class}
+    class={"box text_level2 " + overflow_compensate_class}
   >
     <tr>
       <td>UAR</td>
