@@ -4,14 +4,14 @@ Codec is a collaborative tool for managing video evidence. A public demo site is
 
 A response to the deluge of visual information flowing out of conflict environments and contested events, Codec is designed to support the work of researchers, journalists, legal teams, activist groups and others in adjacent fields. While the tool has many potential applications, the driving goal has been to further investigations, amplify truth, and pursue accountability for human rights abuses. The interface is a modular system split into three components: a timeline, a map, and a media player that allows users to securely synthesize large data sets of multimedia assets across the time and space of an event or series of events.
 
-Codec originally emerged as a byproduct of attempting to solve recurring challenges in our investigative workflows—issues around collaboration, rapid visualization, and the management of video evidence. While the amount of user generated content has increased exponentially in recent years, managing the sheer volume of material can become inefficient at best and, often, simply prohibitive. Codec is designed to make this process collaborative, streamlined, efficient and intuitive. Research and development for Codec unfolded across various cases of differing scales, and through collaborating with partners, including: Amnesty International, UC Berkeley's Human Rights Center, Columbia Law School’s Human Rights Initiative, Human Rights Watch, UNITAD and many more.
+Codec originally emerged as a byproduct of attempting to solve recurring challenges in our investigative workflows—issues around collaboration, rapid visualization, and the management of video evidence. While the amount of user generated content has increased exponentially in recent years, managing the sheer volume of material can become inefficient at best and, often, simply prohibitive. Codec is designed to make this process collaborative, streamlined, efficient and intuitive. Research and development for this beta version of Codec unfolded across various cases of differing scales, and through collaborating with partners, including: Carnegie Mellon University’s Center for Human Rights Science, Amnesty International, UC Berkeley's Human Rights Center, Columbia Law School’s Human Rights Initiative, Human Rights Watch, UNITAD and many more.
 
 
-Our goal with releasing this tool open-source is two fold: <br>
-\- to make it easily accessible for folks doing similar work <br>
-\- to open it up to others in similar fields with software development skills to build a shared tool
+Our goal with releasing this open-source tool is two-fold: <br>
+\- to make it easily accessible for other researchers engaged in similar work <br>
+\- to open it up to others with software development skills in order to build a shared tool
 
-If you'd like to work with us on using or developing Codec, please fill out [this form](https://forms.gle/7Pg7GPZmYpN6CVSa9). As a small team we won't be able to work with all collaborators, but we will do our best to support serious inquiries. We have written out details instructions below for you to get started without the need for direct contact.
+If you'd like to work with us on using or developing Codec, please fill out [this form](https://forms.gle/7Pg7GPZmYpN6CVSa9). As a small team we won't be able to work with all collaborators, but we will do our best to support serious inquiries. We have written out detailed instructions below to help you get started without the need for direct communication.
 
 ***
 
@@ -26,26 +26,26 @@ If you'd like to work with us on using or developing Codec, please fill out [thi
 
 ## General instructions (no code)
 
-We have strived to make Codec as easy as possible to use, especially for folks with no coding experience. You'll need 4 things to setup a Codec instance: **your media files**, **a googlesheet**, **a google service account**, and **a deployed instance of this repository** (more details on each below).
+We have strived to make Codec as easy as possible to use, especially for researchers with no coding experience. You'll need 4 things to setup Codec: **your media files**, **a googlesheet**, **a google service account**, and **a deployed instance of this repository** (more details on each below).
 
 ### 1. A folder with your media files
 
-You will need a folder with all your media assets, each named as their [UAR (unique asset reference) + file extension]. This folder can be a local folder containing the files, or can be a mounted drive as is possible with Google Drive, OneDrive, Tresorit (for maximum security) or any other cloud storage service that has a similar local drive mount feature. (If you choose this option, make sure that, in the Platform config sheet, 'Source of media files' is set to 'local'.)
+You will need a folder with all your media assets, each named as their [UAR (unique asset reference) + file extension]. This folder can be a local folder containing the files, or can be a mounted drive, like Google Drive, OneDrive, Tresorit (for maximum security) or another cloud storage service that has a similar local drive mount feature. (If you choose this option, make sure that, in the Platform config sheet, 'Source of media files' is set to 'local'.)
 
 <details>
 
 <summary>Another media file storage solution (click to expand) </summary>
 
-Another media file storage solution is to use a cloud storage service such as Amazon Web Services’ S3. After having uploaded the necessary files to an S3 bucket and the necessary url links filled in the spreadsheet, any user with access to the platform can then play the files without needing a local copy or a local drive streaming solution. It thus makes public dissemination easier. However, it is slightly more technically difficult to set up and is not as secure. (If you choose this option, make sure that, in the Platform config sheet, 'Source of media files' is set to 'url'.)
+Another media file storage solution is to use a cloud storage service such as Amazon Web Services’ S3. After uploading the necessary files to an S3 bucket and the necessary url links filled in the spreadsheet, any user with access to the platform can then play the files without needing a local copy or a local drive streaming solution. This makes public dissemination easier. However, it is slightly more technically difficult to set up and is not as secure. (If you choose this option, make sure that, in the Platform config sheet, 'Source of media files' is set to 'url'.)
 </details>
 
-If you already have a spreadsheet with UARs and links, we recommed using Amnesty Citizen Evidence Lab's [Online Video Wrangler](https://citizenevidence.org/2021/03/25/online-video-wrangler/) to automatically download all the media files.
+If you already have a spreadsheet with UARs and links, we recommend using Amnesty Citizen Evidence Lab's [Online Video Wrangler](https://citizenevidence.org/2021/03/25/online-video-wrangler/) to automatically download all the media files.
 
 ### 2. A googlesheets document
 
 Next you will need a properly set up googlesheet. A template is available [here](https://docs.google.com/spreadsheets/d/1gUMlUpOvRWUkG10lkWk8zebtmkzK9R0Azv6inve94h4/edit?usp=sharing) - feel free to duplicate and fill it with your own information. The template includes data validation on important cells to verify that the manually inputted value's format matches the expected format (e.g. time in HH-MM-SS format). More on the expected format below.
 
-Importantly, make sure that this googlesheets document is shared with the google service account you create in the next step. In step [4](#4-a-deployed-version-of-codec), you will need your googlesheet document id, which is in the url `https://docs.google.com/spreadsheets/d/YOUR SPREADSHEET ID IS HERE/edit#gid=0` as per this [documentation](https://developers.google.com/sheets/api/guides/concepts)
+Importantly, make sure that your googlesheets document is shared with the google service account you create in the next step. In step [4](#4-a-deployed-version-of-codec), you will need your googlesheet document id, which is in the url `https://docs.google.com/spreadsheets/d/YOUR SPREADSHEET ID IS HERE/edit#gid=0` as per this [documentation](https://developers.google.com/sheets/api/guides/concepts)
 
 
 
@@ -93,7 +93,7 @@ Codec expects a googlesheet with the following characteristics:
 - a column to indicate asset latitude
 - a column to indicate asset longitude
 - if using cloud hosted media files, a column to indicate asset file link
-- column with boolean (i.e. true/false) values will be automatically filterable in the Codec user interface. We recommend using checkboxes to avoid typos (select whole column below column name, Insert > Checkbox)
+- columns with boolean (i.e. true/false) values will be automatically filterable in the Codec user interface. We recommend using checkboxes to avoid typos (select whole column below column name, Insert > Checkbox)
 </details>
 
 
@@ -114,7 +114,7 @@ Codec expects a googlesheet with the following characteristics:
 
 ### 3. A google service account
 
-You will need to enable the Google sheets API and create a Google service account to authorize Codec to read your googlesheet. This process is slightly more technical but relatively straightforward for non-coders. The instruction below are paraphrased from the [documentation](https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication) of the [google-spreadsheet library](https://theoephraim.github.io/node-google-spreadsheet/) used in this project:
+You will need to enable the Google Sheets API and create a Google service account to authorize Codec to read your googlesheet. This process is slightly more technical but relatively straightforward for non-coders. The instruction below are paraphrased from the [documentation](https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication) of the [google-spreadsheet library](https://theoephraim.github.io/node-google-spreadsheet/) used in this project:
 
 
 <details>
@@ -138,7 +138,7 @@ You will need to enable the Google sheets API and create a Google service accoun
 <details>
 
 <summary>
-2. Creating the google service account (click to expand)
+2. Creating the Google service account (click to expand)
 </summary>
 
 1. Select your project in the [Google Developers Console](https://console.cloud.google.com/)
@@ -153,7 +153,7 @@ You will need to enable the Google sheets API and create a Google service accoun
 
 </details>
 
-Once you have a google service account, share the googlesheets document you created above with the google service account email shown in the JSON file (which you can open with any text editor).
+Once you have a Google service account, share the googlesheets document you created above with the Google service account email shown in the JSON file (which you can open with any text editor).
 
 You will also need the information in the JSON file in the following step.
 
@@ -176,7 +176,7 @@ When prompted, fill in the following environment variables:
 
 ## Instructions for developers
 
-For development, clone or fork the repository and make sure to use the netlify cli to run the app, in order to simulate the netlify function that fetches the googlesheet document data. By default, the netlify cli will look for an .env file with the same environemnt variables as above.
+For development, clone or fork the repository and make sure to use the Netlify CLI to run the app, in order to simulate the Netlify function that fetches the googlesheet document data. By default, the Netlify CLI will look for an .env file with the same environment variables as above.
 
 ```
 git clone https://github.com/SITU-Research/codec
@@ -212,19 +212,19 @@ If your deployed Codec tool is not displaying properly, here is a short list of 
 
 #### Symptom: The map is not loading correctly
 #### Potential solutions:
-- Ensure the mapbox access token is correctly inputted into Netlify. You can change it by navigating to [Netlify](https://app.netlify.com/), selecting your site > Site Settings > Build & deploy > Environment > Edit variables and changing the value of MAPBOX_ACCESS_TOKEN
+- Ensure the Mapbox access token is correctly inputted into Netlify. You can change it by navigating to [Netlify](https://app.netlify.com/), selecting your site > Site Settings > Build & deploy > Environment > Edit variables and changing the value of MAPBOX_ACCESS_TOKEN
 
 <br>
 
 #### Symptom: The media are not displaying correctly
 #### Potential solutions:
-- Ensure the media files are name.d by their UAR
+- Ensure the media files are named by their UAR
 
 
-Disclaimer: We won't be able to troubleshoot with all Codec users directly. We encourage folks who come up against hurdles to create an issue on this repository, tag it with the **'user help needed'** label, and help one another out.
+Disclaimer: We won't be able to troubleshoot with all Codec users directly. We encourage researchers who come up against hurdles to create an issue on this repository, tag it with the **'user help needed'** label, and help one another out.
 
 ***
 
 ## Contributing
 
-If you are interesting in contributing, thank you! Please take a look at the issues for bugs, enhancements etc to see what would be most helpful. Then fork the repo, create a pull request and we will integrate as soon as possible. Examples of useful contributions include: synced media playback, display of images and other media types, flexibility to use other spreadsheet sources such as Excel or OneDrive.
+If you are interested in contributing, thank you! Please take a look at the issues for bugs, enhancements etc to see what would be most helpful. Then fork the repo, create a pull request and we will integrate as soon as possible. Examples of useful contributions include: synced media playback, display of images and other media types, flexibility to use other spreadsheet sources such as Excel or OneDrive.
