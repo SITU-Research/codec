@@ -5,9 +5,11 @@
   import Topbar from "./components/topbar/Topbar.svelte";
   import Tooltip from "./components/Tooltip.svelte";
   import Modules from "./components/modules/Modules.svelte";
+  import FilterPanel from "./components/modules/FilterPanel.svelte";
   import {
     media_store,
     events_store,
+    ui_store,
     filter_toggles,
     platform_config_store,
   } from "./stores/store";
@@ -27,10 +29,10 @@
   }, 500);
 
   onMount(() => {
-    // let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
-    // return () => {
-    //   clearInterval(fetch_interval);
-    // };
+    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
+    return () => {
+      clearInterval(fetch_interval);
+    };
   });
 
   function fetch_google_sheet_data() {
@@ -245,9 +247,14 @@
   <meta name="robots" content="noindex nofollow" />
   <html lang="en" />
 </svelte:head>
+
+<FilterPanel />
+
 <main
   on:mousemove={handleMouseMove}
-  style="width:{width_mod_grid}px; height:{height_mod_grid}px;"
+  style="width:{width_mod_grid}px; height:{height_mod_grid}px; left:{$ui_store.filter_in_view
+    ? `var(--filtermenu-size)`
+    : `0`} "
 >
   {#await fetch_google_sheet_data()}
     <div class="modal_container">
@@ -257,7 +264,7 @@
     </div>
   {:then}
     {#if $platform_config_store["Source of media files"] && $platform_config_store["Source of media files"].includes("local")}
-      <!-- <LocalMediaInput /> -->
+      <LocalMediaInput />
     {/if}
     <Tooltip {mouse_xy} />
     <Topbar />

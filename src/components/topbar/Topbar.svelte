@@ -1,5 +1,5 @@
 <script>
-    import Filter from "./Filter.svelte";
+    import FilterButton from "./FilterButton.svelte";
     import Finder from "./Finder.svelte";
     import ModuleTools from "./ModuleTools.svelte";
     import About from "./About.svelte";
@@ -7,7 +7,7 @@
 </script>
 
 <div id="top_bar">
-    <Filter />
+    <FilterButton />
     <div class="vl" />
     <ModuleTools />
     <Finder />

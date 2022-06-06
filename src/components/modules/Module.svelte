@@ -75,13 +75,14 @@
     }
 
     .module_topbar > * {
-        line-height: 30px;
-        width: 30px;
-        height: 30px;
+        line-height: calc(2 * var(--grid-size));
+        height: calc(2 * var(--grid-size));
+        width: calc(2 * var(--grid-size));
     }
 
     .module_title {
         flex-grow: 2;
+        margin-left: calc(0.5 * var(--grid-size));
     }
 
     .module_close {

@@ -2,10 +2,11 @@
 	--grey1: #1E1E1E;
 	--grey2: #41484E;
 	--grey3: #2C2C2C;
+	--font-size: 14px;
 	--grey4blue: #1F262B;
 	--grid-size: 10px;
 	--topbar-size: 20px;
-	--font-size: 14px;
+	--filtermenu-size: 400px;
 }
 
 html {
@@ -20,11 +21,6 @@ body {
 	width: 100%;
 	height: 100%;
 	margin: 0;
-	background-size: var(--grid-size) var(--grid-size);
-	background-color: var(--grey1);
-	background-image:
-		linear-gradient(to right, var(--grey4blue) 1px, transparent 1px),
-		linear-gradient(to bottom, var(--grey4blue) 1px, transparent 1px);
 	font-family: "Nunito", sans-serif;
 	font-weight: 400 !important;
 	-ms-overflow-style: none;
@@ -32,6 +28,11 @@ body {
 	scrollbar-width: none;
 	/* Firefox */
 	color: var(--grey2);
+	background-size: var(--grid-size) var(--grid-size);
+	background-color: var(--grey1);
+	background-image:
+		linear-gradient(to right, var(--grey4blue) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--grey4blue) 1px, transparent 1px);
 }
 
 
@@ -43,6 +44,8 @@ main {
 	height: 100%;
 	padding: calc(var(--grid-size)*2);
 	box-sizing: border-box;
+	transition: left .5s;
+
 }
 
 .text_level1 {
@@ -134,10 +137,6 @@ button:focus {
 	/* Full height */
 	overflow: auto;
 	/* Enable scroll if needed */
-	background-color: rgb(0, 0, 0);
-	/* Fallback color */
-	background-color: rgba(0, 0, 0, 0.4);
-	/* Black w/ opacity */
 }
 
 .modal_content {

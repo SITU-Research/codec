@@ -1,6 +1,27 @@
-<button id="about_text" class="text_level1 noselect"
-    ><span> about </span></button
+<script>
+    let about_in_view = false;
+</script>
+
+<button
+    id="about_text"
+    class="text_level1 noselect"
+    on:click={() => {
+        about_in_view = !about_in_view;
+    }}><span> about </span></button
 >
+
+{#if about_in_view}
+    <div
+        class="modal_container"
+        on:click={() => {
+            about_in_view = !about_in_view;
+        }}
+    >
+        <div class="box modal_content text_level2">
+            <p>About</p>
+        </div>
+    </div>
+{/if}
 
 <style>
     #about_text {
