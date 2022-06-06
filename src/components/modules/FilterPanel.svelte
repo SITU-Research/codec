@@ -21,14 +21,23 @@
         </div>
     </div>
     {#each Object.entries($filter_toggles) as [filter, value]}
-        <div>
-            <input
-                type="checkbox"
-                checked={value ? true : false}
-                on:change={() => {
-                    $filter_toggles[filter] = !value;
-                }}
-            />{filter}
+        <div
+            class="filter_toggle"
+            on:click={() => {
+                $filter_toggles[filter] = !value;
+            }}
+        >
+            <form>
+                <label for="+">
+                    <input type="radio" checked={value} />
+                    <span>+</span>
+                </label>
+                <label for="-">
+                    <input type="radio" checked={!value} />
+                    <span>-</span>
+                </label>
+            </form>
+            <span style="color:{value ? 'white' : ''}">{filter}</span>
         </div>
     {/each}
 </div>
@@ -72,24 +81,42 @@
         width: 30px;
     }
 
-    .filter_toggles {
-        border: 1px solid #ccc;
-        cursor: pointer;
-        padding: 6px 12px;
-        width: 75%;
+    .filter_toggle {
+        padding: var(--grid-size) 0;
     }
 
-    .filter_toggle_on {
-        background-color: white;
-        color: black;
+    form {
+        display: inline;
     }
 
-    .filter_toggle_off {
-        background-color: black;
-        color: white;
+    label {
+        display: inline;
+        padding: 5px;
+        position: relative;
+        padding-left: 20px;
     }
 
-    li {
-        color: white;
+    label input {
+        display: none;
+    }
+
+    label span {
+        border: 1px solid var(--grey2);
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        overflow: hidden;
+        line-height: 1;
+        text-align: center;
+        border-radius: 100%;
+        font-size: 10pt;
+        left: 0;
+        top: 50%;
+        margin-top: -7.5px;
+    }
+
+    input:checked + span {
+        background: white;
+        border-color: white;
     }
 </style>
