@@ -72,18 +72,18 @@
                     </p>
 
                     <p style="color:var(--grey2)">
-                        For organizations with 501(3)(c) non-profit status,
-                        Mapbox, which is used in this platform, is free for
-                        download.
+                        For non-commercial projects or entities, Mapbox may be
+                        able to provide account support and discounts. Contact
+                        community@mapbox.com to describe your Codec use case and
+                        request Mapbox account support.
                     </p>
 
                     <p style="color:var(--grey2)">
-                        Graphic identity: <a
+                        Graphic identity and UI consultancy by <a
                             href="https://scasascia.com/"
                             target="_blank"
                             rel="noopener noreferrer">Studio Scasascia</a
-                        >. The typeface is Nunito, a free Google font, medium
-                        weight.
+                        >.
                     </p>
 
                     <p style="color:var(--grey2)">
