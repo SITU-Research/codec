@@ -10,14 +10,7 @@
 
   import { onMount } from "svelte";
 
-  let videos,
-    items,
-    container,
-    main_timeline,
-    mini_timeline,
-    brush_default_object,
-    timeBegin,
-    timeEnd;
+  let videos, items, container, main_timeline, timeBegin, timeEnd;
 
   $: {
     timeBegin = localtoUTCdatetimeobj(
@@ -28,34 +21,7 @@
     );
   }
 
-  // update when media_store_filtered changes
-  $: {
-    videos = Object.values($media_store_filtered);
-    let videos_w_chrono = videos.filter((video) => video.start !== undefined);
-    items = new DataSet(videos_w_chrono);
-    let view = new DataView(items);
-    let viewed_items = view.get();
-    main_timeline?.setItems(viewed_items);
-  }
-
-  // update when events_store changes
-  $: {
-    let copy_custom_times = main_timeline?.customTimes.slice(0);
-    copy_custom_times?.forEach((custom_time) => {
-      let id = custom_time.options.id;
-      if (!id.includes("current_time_line")) main_timeline.removeCustomTime(id);
-    });
-    $events_store.forEach((el) => {
-      main_timeline?.addCustomTime(el.start, el.id);
-      main_timeline?.setCustomTimeTitle("", el.id);
-      main_timeline?.customTimes[
-        main_timeline?.customTimes.length - 1
-      ].hammer.off("panstart panmove panend");
-    });
-  }
-
-  // update when ui_store changes
-  $: {
+  function update_timeline_clicked_hovered() {
     // match timeline's clicked/unclicked items with ui_store
     // get list of html elements that are shown as clicked, get their UAR
     let clicked_timeline_els = [
@@ -115,6 +81,40 @@
         main_timeline.itemSet.items[UAR].setData(item.data);
       }
     });
+  }
+
+  // update when media_store_filtered changes
+  $: {
+    videos = Object.values($media_store_filtered);
+    let videos_w_chrono = videos.filter((video) => video.start !== undefined);
+    items = new DataSet(videos_w_chrono);
+    let view = new DataView(items);
+    let viewed_items = view.get();
+    main_timeline?.setItems(viewed_items);
+    update_timeline_clicked_hovered();
+  }
+
+  // update when events_store changes
+  $: {
+    let copy_custom_times = main_timeline?.customTimes.slice(0);
+    copy_custom_times?.forEach((custom_time) => {
+      let id = custom_time.options.id;
+      if (!id.includes("current_time_line")) main_timeline.removeCustomTime(id);
+    });
+    $events_store.forEach((el) => {
+      main_timeline?.addCustomTime(el.start, el.id);
+      main_timeline?.setCustomTimeTitle("", el.id);
+      main_timeline?.customTimes[
+        main_timeline?.customTimes.length - 1
+      ].hammer.off("panstart panmove panend");
+    });
+  }
+
+  // update when ui_store changes
+  $: {
+    if ($ui_store.media_in_view) {
+      update_timeline_clicked_hovered();
+    }
   }
 
   // do stuff at beginning
