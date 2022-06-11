@@ -249,6 +249,7 @@
 </svelte:head>
 
 <FilterPanel />
+<Tooltip {mouse_xy} />
 
 <main
   on:mousemove={handleMouseMove}
@@ -266,7 +267,6 @@
     {#if $platform_config_store["Source of media files"] && $platform_config_store["Source of media files"].includes("local")}
       <LocalMediaInput />
     {/if}
-    <Tooltip {mouse_xy} />
     <Topbar />
     <Modules />
   {:catch error}
