@@ -2,13 +2,13 @@
   import { ui_store } from "../../stores/store";
   import TimelineThree from "./TimelineThree.svelte";
   import Map from "./Map.svelte";
-  import MediumVideo from "./MediumVideo.svelte";
+  import MediumMediaFile from "./MediumMediaFile.svelte";
 
   export let module;
   export let medium;
 
   let modules_options = {
-    media: MediumVideo,
+    media: MediumMediaFile,
     map: Map,
     timeline: TimelineThree,
   };
@@ -99,5 +99,11 @@
 
   .timeline_module {
     margin-right: var(--grid-size);
+  }
+
+  .media_file_name {
+    display: inline-block;
+    background: white;
+    border-radius: 4px;
   }
 </style>

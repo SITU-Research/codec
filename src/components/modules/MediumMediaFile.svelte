@@ -12,6 +12,9 @@
   } else {
     src = medium[$platform_config_store["Title of column used for url"]];
   }
+
+  /* We check if we have some kind of photo or a video*/
+  const isPhoto = src.match(/.jpg|.png|.jpeg/i) || false;
 </script>
 
 {#if src.includes("mp4") || src.includes("mov")}
@@ -26,24 +29,17 @@
 {/if}
 
 <style>
-  .medium_video {
-    width: 100%;
+  .medium  {
+    display: flex;
+    width: auto;
     height: 40vh;
     margin: 0 auto;
     overflow: hidden; /* Add this */
   }
 
-  .medium_image {
-    height: 40vh;
-    display: flex;
-    flex-flow: column;
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
+ .medium > * {
+   width: auto;
+   height: 100%;
+   object-fit: contain;
+ }
 </style>
