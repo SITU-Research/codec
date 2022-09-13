@@ -11,7 +11,7 @@
         }
     }
 
-    let modules = ["map", "timeline", "media"];
+    let modules = ["map", "timeline", "media", "timelinethree"];
 </script>
 
 <div id="view_text" class="text_level1 noselect"><span> view: </span></div>

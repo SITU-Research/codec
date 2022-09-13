@@ -13,6 +13,7 @@
   <div id="nonmedia_container">
     <Module module={"timeline"} />
     <Module module={"map"} />
+    <Module module={"timelinethree"} />
   </div>
 </div>
 

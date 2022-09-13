@@ -29,7 +29,7 @@
   }, 500);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
+    let fetch_interval = setInterval(fetch_google_sheet_data, 100000000);
     return () => {
       clearInterval(fetch_interval);
     };
@@ -44,7 +44,7 @@
         $platform_config_store = platform_config;
         fetch(
           `/.netlify/functions/googlesheets?sheet=` +
-            platform_config["Title of tab with media assets"] +
+            `Audiovisual materials` +
             `&offset=` +
             platform_config["Rank of assets row with column names"]
         )
@@ -265,7 +265,7 @@
     </div>
   {:then}
     {#if $platform_config_store["Source of media files"] && $platform_config_store["Source of media files"].includes("local")}
-      <LocalMediaInput />
+      <!-- <LocalMediaInput /> -->
     {/if}
     <Topbar />
     <Modules />
