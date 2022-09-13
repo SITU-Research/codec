@@ -38,6 +38,7 @@ exports.handler = async (event, context, callback) => {
                     items.push(sheet_row._rawData)
                 }
             })
+            console.log(requested_sheet_title, 'size: ', Buffer.byteLength(JSON.stringify(items)))
             return {
                 statusCode: 200,
                 body: JSON.stringify(items),
