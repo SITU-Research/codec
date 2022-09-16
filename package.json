@@ -28,7 +28,7 @@
     "sirv-cli": "^2.0.0",
     "three": "^0.144.0",
     "threlte": "^3.13.1",
-    "underscore": "^1.13.2",
+    "underscore": "^1.13.4",
     "vis-timeline": "^7.5.0"
   }
 }
