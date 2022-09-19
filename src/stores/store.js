@@ -5,7 +5,6 @@ export const local_file_store = writable({})
 export const events_store = writable([])
 export const platform_config_store = writable({})
 
-
 export const ui_store = writable({
     modules_in_view: ['timeline', 'map', 'media'],
     media_in_view: [],
