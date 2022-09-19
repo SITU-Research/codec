@@ -3,6 +3,7 @@
     import Timeline from "./Timeline.svelte";
     import Map from "./Map.svelte";
     import MediumVideo from "./MediumVideo.svelte";
+    import Report from "./Report.svelte";
 
     export let module;
     export let medium;
@@ -11,6 +12,7 @@
         media: MediumVideo,
         map: Map,
         timeline: Timeline,
+        report: Report,
     };
 
     function close_module(module, medium) {
