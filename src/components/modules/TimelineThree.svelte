@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import { watchResize } from "svelte-watch-resize";
-  import { validate_component } from "svelte/internal";
   import { throttle } from "underscore";
 
   import * as THREE from "three";
@@ -13,47 +12,24 @@
     ui_store,
     platform_config_store,
   } from "../../stores/store";
-  import Timeline from "./Timeline.svelte";
 
   let videos,
     videos_w_chrono,
     timeBegin = 0,
     timeEnd,
+    time2x,
+    x2time,
     orderedTime = true,
     orderedOtherIndex = {};
 
-  $: {
-    videos = Object.values($media_store_filtered);
-    videos_w_chrono = videos
-      .filter((video) => video.start !== undefined)
-      .sort((a, b) => b.times[0].starting_time - a.times[0].starting_time);
-    if (videos_w_chrono.length > 0)
-      timeBegin = videos_w_chrono[0].times[0].starting_time;
+  let time_scale_factor = 0.00001;
 
-    orderedTime =
-      $platform_config_store["Title of column used for chronolocation"] ==
-      $platform_config_store["Assets ordering"];
-    if (!orderedTime) {
-      let unique_order_value = [
-        ...new Set(
-          videos_w_chrono.map(
-            (video) => video[$platform_config_store["Assets ordering"]]
-          )
-        ),
-      ].sort();
-      unique_order_value.forEach((value, i) => {
-        orderedOtherIndex[value] = i;
-      });
-    }
-  }
   let el;
-
   let camera, scene, renderer, canvasWidth, canvasHeight;
   let mesh;
   const amount = 50;
   const count = Math.pow(amount, 3);
   const dummy = new THREE.Object3D();
-  let mousePos = new THREE.Vector3();
   let mouse = new THREE.Vector2(1, 1);
   const raycaster = new THREE.Raycaster();
 
@@ -63,8 +39,7 @@
   });
 
   function init(el) {
-    // camera = new THREE.PerspectiveCamera(60, 0.5, 0.1, 100);
-    camera = new THREE.OrthographicCamera(-100, 100, 100, -100, 1, 5);
+    camera = new THREE.OrthographicCamera(-100, 100, 10, -10, 1, 5);
     camera.position.set(0, 0, 2);
     camera.lookAt(0, 0, 0);
 
@@ -91,6 +66,56 @@
     renderer.setSize(600, 800);
   }
 
+  $: {
+    timeBegin = new Date(
+      $platform_config_store["Timeline begin datetime"]
+    ).getTime();
+    timeEnd = new Date(
+      $platform_config_store["Timeline end datetime"]
+    ).getTime();
+
+    time2x = (time) => {
+      return (time - timeBegin) * time_scale_factor;
+    };
+
+    x2time = (x) => {
+      return (x + timeBegin) * time_scale_factor;
+    };
+
+    // if (camera) {
+    //   // camera.left = time2x(timeBegin);
+    //   // camera.right = time2x(timeEnd);
+    //   camera.position.set(
+    //     ((timeEnd - timeBegin) * time_scale_factor) / 2.0,
+    //     0,
+    //     2
+    //   );
+    //   camera.lookAt(((timeEnd - timeBegin) * time_scale_factor) / 2.0, 0, 0);
+    //   // camera.updateProjectionMatrix();
+    // }
+
+    videos = Object.values($media_store_filtered);
+    videos_w_chrono = videos
+      .filter((video) => video.start !== undefined)
+      .sort((a, b) => b.times[0].starting_time - a.times[0].starting_time);
+
+    orderedTime =
+      $platform_config_store["Title of column used for chronolocation"] ==
+      $platform_config_store["Assets ordering"];
+    if (!orderedTime) {
+      let unique_order_value = [
+        ...new Set(
+          videos_w_chrono.map(
+            (video) => video[$platform_config_store["Assets ordering"]]
+          )
+        ),
+      ].sort();
+      unique_order_value.forEach((value, i) => {
+        orderedOtherIndex[value] = i;
+      });
+    }
+  }
+
   const animate = () => {
     requestAnimationFrame(animate);
     render();
@@ -114,12 +139,13 @@
         }
 
         dummy.position.set(
-          (video.times[0].starting_time + 0.5 * duration - timeBegin) / 100000,
+          (video.times[0].starting_time - timeBegin) * time_scale_factor +
+            0.5 * duration * time_scale_factor,
           y_position,
           0
         );
 
-        dummy.scale.set(duration / 100000, 0.199, 1);
+        dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
 
         dummy.updateMatrix();
 
@@ -142,13 +168,6 @@
   }
 
   function handleMouseMove(event) {
-    // mousePos.set(
-    //   (event.clientX / canvasWidth) * 2 - 1,
-    //   -(event.clientY / canvasHeight) * 2 + 1,
-    //   0
-    // );
-    // mousePos.unproject(camera);
-    // console.log(mousePos);
     mouse.x = (event.offsetX / canvasWidth) * 2 - 1;
     mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
@@ -157,7 +176,6 @@
 
     if (intersection.length > 0) {
       const instanceId = intersection[0].instanceId;
-      console.log(videos_w_chrono[instanceId]);
       $ui_store.media_hovered = [videos_w_chrono[instanceId].UAR];
     } else {
       $ui_store.media_hovered = [];
@@ -188,7 +206,7 @@
   };
 </script>
 
-<div use:watchResize={handleResize}>
+<div id="timeline_container" use:watchResize={handleResize}>
   <canvas
     bind:this={el}
     on:mousemove={handleMouseMove_throttle}
@@ -197,13 +215,17 @@
 </div>
 
 <style>
-  div {
+  #timeline_container {
     position: relative;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
+
   canvas {
     position: relative;
     top: 0;

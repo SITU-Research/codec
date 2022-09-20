@@ -13,7 +13,6 @@
   <div id="nonmedia_container">
     <Module module={"timeline"} />
     <Module module={"map"} />
-    <Module module={"timelinethree"} />
   </div>
 </div>
 
@@ -28,6 +27,7 @@
 
   #nonmedia_container {
     flex: 1 1 50%;
+    flex-grow: 1;
     display: flex;
     flex-flow: row nowrap;
     justify-items: stretch;
