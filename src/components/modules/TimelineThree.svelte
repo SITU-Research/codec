@@ -18,7 +18,9 @@
   let videos,
     videos_w_chrono,
     timeBegin = 0,
-    timeEnd;
+    timeEnd,
+    orderedTime = true,
+    orderedOtherIndex = {};
 
   $: {
     videos = Object.values($media_store_filtered);
@@ -27,6 +29,22 @@
       .sort((a, b) => b.times[0].starting_time - a.times[0].starting_time);
     if (videos_w_chrono.length > 0)
       timeBegin = videos_w_chrono[0].times[0].starting_time;
+
+    orderedTime =
+      $platform_config_store["Title of column used for chronolocation"] ==
+      $platform_config_store["Assets ordering"];
+    if (!orderedTime) {
+      let unique_order_value = [
+        ...new Set(
+          videos_w_chrono.map(
+            (video) => video[$platform_config_store["Assets ordering"]]
+          )
+        ),
+      ].sort();
+      unique_order_value.forEach((value, i) => {
+        orderedOtherIndex[value] = i;
+      });
+    }
   }
   let el;
 
@@ -87,9 +105,17 @@
         let duration =
           video.times[0].ending_time - video.times[0].starting_time;
 
+        let y_position;
+        if (orderedTime) {
+          y_position = i * 0.2;
+        } else {
+          y_position =
+            orderedOtherIndex[video[$platform_config_store["Assets ordering"]]];
+        }
+
         dummy.position.set(
           (video.times[0].starting_time + 0.5 * duration - timeBegin) / 100000,
-          i * 0.2,
+          y_position,
           0
         );
 
