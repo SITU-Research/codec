@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte";
-  import { watchResize } from "svelte-watch-resize";
   import { throttle } from "underscore";
 
   import * as THREE from "three";
@@ -24,7 +23,21 @@
 
   let time_scale_factor = 0.00001;
 
-  let el;
+  let el, container;
+  var ro = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      const cr = entry.contentRect;
+      console.log("Element:", entry.target);
+      console.log(`Element size: ${cr.width}px x ${cr.height}px`);
+      console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
+      canvasWidth = cr.width;
+      canvasHeight = cr.height;
+      renderer.setSize(canvasWidth, canvasHeight);
+      camera.aspect = canvasWidth / canvasHeight;
+      camera.updateProjectionMatrix();
+    }
+  });
+
   let camera, scene, renderer, canvasWidth, canvasHeight;
   let mesh;
   const amount = 50;
@@ -36,9 +49,10 @@
   onMount(() => {
     init(el);
     animate();
+    ro.observe(container);
   });
 
-  function init(el) {
+  function init(el, container) {
     camera = new THREE.OrthographicCamera(-100, 100, 10, -10, 1, 5);
     camera.position.set(0, 0, 2);
     camera.lookAt(0, 0, 0);
@@ -46,7 +60,7 @@
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
 
-    let geometry = new THREE.BoxBufferGeometry();
+    let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
 
     const material = new THREE.MeshBasicMaterial();
@@ -63,7 +77,8 @@
     };
 
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
-    renderer.setSize(600, 800);
+
+    renderer.setSize(container?.clientHeight, container?.clientWidth);
   }
 
   $: {
@@ -158,15 +173,6 @@
     renderer.render(scene, camera);
   }
 
-  function handleResize(node) {
-    canvasWidth = node.clientWidth;
-    canvasHeight = node.clientHeight - 10;
-
-    renderer.setSize(canvasWidth, canvasHeight);
-    camera.aspect = canvasWidth / canvasHeight;
-    camera.updateProjectionMatrix();
-  }
-
   function handleMouseMove(event) {
     mouse.x = (event.offsetX / canvasWidth) * 2 - 1;
     mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
@@ -206,7 +212,7 @@
   };
 </script>
 
-<div id="timeline_container" use:watchResize={handleResize}>
+<div bind:this={container} id="timeline_container">
   <canvas
     bind:this={el}
     on:mousemove={handleMouseMove_throttle}
@@ -216,21 +222,12 @@
 
 <style>
   #timeline_container {
-    position: relative;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    overflow: hidden;
   }
 
   canvas {
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed;
   }
 </style>

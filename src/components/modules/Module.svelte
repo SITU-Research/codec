@@ -3,6 +3,7 @@
   import Map from "./Map.svelte";
   import MediumVideo from "./MediumVideo.svelte";
   import TimelineThree from "./TimelineThree.svelte";
+  import Timeline from "./Timeline.svelte";
 
   export let module;
   export let medium;
@@ -59,7 +60,7 @@
   .module {
     display: flex;
     flex-flow: column nowrap;
-    flex: 1 1 auto;
+    flex: 1 1 50%;
     margin-bottom: var(--grid-size);
   }
 
