@@ -27,9 +27,6 @@
   var ro = new ResizeObserver((entries) => {
     for (let entry of entries) {
       const cr = entry.contentRect;
-      console.log("Element:", entry.target);
-      console.log(`Element size: ${cr.width}px x ${cr.height}px`);
-      console.log(`Element padding: ${cr.top}px ; ${cr.left}px`);
       canvasWidth = cr.width;
       canvasHeight = cr.height;
       renderer.setSize(canvasWidth, canvasHeight);
@@ -37,6 +34,9 @@
       camera.updateProjectionMatrix();
     }
   });
+  let mouse_dragged = false;
+  let mouse_dragged_timeout;
+  let initial_setup_done;
 
   let camera, scene, renderer, canvasWidth, canvasHeight;
   let mesh;
@@ -47,18 +47,19 @@
   const raycaster = new THREE.Raycaster();
 
   onMount(() => {
+    initial_setup_done = false;
     init(el);
     animate();
     ro.observe(container);
   });
 
   function init(el, container) {
-    camera = new THREE.OrthographicCamera(-100, 100, 10, -10, 1, 5);
+    camera = new THREE.OrthographicCamera(-100, 100, 6, -1, 1, 5);
     camera.position.set(0, 0, 2);
     camera.lookAt(0, 0, 0);
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222);
+    scene.background = new THREE.Color(0x000000);
 
     let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
@@ -72,6 +73,7 @@
     scene.add(mesh);
     const controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
+    controls.enableZoom = false;
     controls.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
     };
@@ -97,18 +99,6 @@
       return (x + timeBegin) * time_scale_factor;
     };
 
-    // if (camera) {
-    //   // camera.left = time2x(timeBegin);
-    //   // camera.right = time2x(timeEnd);
-    //   camera.position.set(
-    //     ((timeEnd - timeBegin) * time_scale_factor) / 2.0,
-    //     0,
-    //     2
-    //   );
-    //   camera.lookAt(((timeEnd - timeBegin) * time_scale_factor) / 2.0, 0, 0);
-    //   // camera.updateProjectionMatrix();
-    // }
-
     videos = Object.values($media_store_filtered);
     videos_w_chrono = videos
       .filter((video) => video.start !== undefined)
@@ -129,6 +119,19 @@
         orderedOtherIndex[value] = i;
       });
     }
+
+    if (camera && !initial_setup_done) {
+      camera.left = time2x(timeBegin);
+      camera.right = time2x(timeEnd);
+
+      if (!orderedTime) {
+        camera.top = Math.max(...Object.values(orderedOtherIndex)) + 1;
+        camera.bottom = Math.min(...Object.values(orderedOtherIndex)) - 1;
+      }
+      camera.updateProjectionMatrix();
+    }
+
+    if (videos.length > 0) initial_setup_done = true;
   }
 
   const animate = () => {
@@ -188,35 +191,63 @@
     }
   }
 
-  let handleMouseMove_throttle = throttle(handleMouseMove, 200);
+  let handleMouseMove_throttle = throttle(handleMouseMove, 200, {
+    leading: true,
+    trailing: false,
+  });
 
-  let handleMouseClick = (event) => {
-    mouse.x = (event.offsetX / canvasWidth) * 2 - 1;
-    mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
+  let handleMouseDown = () => {
+    mouse_dragged_timeout = setTimeout(() => {
+      mouse_dragged = true;
+    }, 200);
+  };
 
-    const intersection = raycaster.intersectObject(mesh);
+  let handleMouseUp = (event) => {
+    clearTimeout(mouse_dragged_timeout);
+    if (!mouse_dragged) {
+      mouse.x = (event.offsetX / canvasWidth) * 2 - 1;
+      mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
 
-    if (intersection.length > 0) {
-      const instanceId = intersection[0].instanceId;
-      let UAR = videos_w_chrono[instanceId].UAR;
+      const intersection = raycaster.intersectObject(mesh);
 
-      if ($ui_store.media_in_view.includes(UAR)) {
-        $ui_store.media_in_view = $ui_store.media_in_view.filter(
-          (exist_UAR) => exist_UAR !== UAR
-        );
-      } else {
-        $ui_store.media_in_view = [...$ui_store.media_in_view, UAR];
+      if (intersection.length > 0) {
+        const instanceId = intersection[0].instanceId;
+        let UAR = videos_w_chrono[instanceId].UAR;
+
+        if ($ui_store.media_in_view.includes(UAR)) {
+          $ui_store.media_in_view = $ui_store.media_in_view.filter(
+            (exist_UAR) => exist_UAR !== UAR
+          );
+        } else {
+          $ui_store.media_in_view = [...$ui_store.media_in_view, UAR];
+        }
       }
     }
+    mouse_dragged = false;
+  };
+
+  let handleMouseLeave = () => {
+    $ui_store.media_hovered = [];
+  };
+
+  let handleScroll = (event) => {
+    camera.left +=
+      (camera.position.x - camera.left) * 0.2 * Math.sign(event.wheelDelta);
+    camera.right -=
+      (camera.right - camera.position.x) * 0.2 * Math.sign(event.wheelDelta);
+
+    camera.updateProjectionMatrix();
   };
 </script>
 
-<div bind:this={container} id="timeline_container">
+<div bind:this={container} on:mousewheel={handleScroll} id="timeline_container">
   <canvas
     bind:this={el}
     on:mousemove={handleMouseMove_throttle}
-    on:click={handleMouseClick}
+    on:mousedown={handleMouseDown}
+    on:mouseup={handleMouseUp}
+    on:mouseleave={handleMouseLeave}
   />
 </div>
 
@@ -229,5 +260,6 @@
 
   canvas {
     position: fixed;
+    overflow: hidden;
   }
 </style>
