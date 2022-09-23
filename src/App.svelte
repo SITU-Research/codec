@@ -29,7 +29,7 @@
   }, 500);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 100000000); //10000);
+    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
     return () => {
       clearInterval(fetch_interval);
     };
@@ -155,8 +155,7 @@
         video.type = "range";
         video.label = video.UAR;
         video.id = video.UAR;
-        video.url =
-          video[$platform_config_store["Title of column used for url"]];
+        video.url = $platform_config_store["Title of column used for url"];
 
         // date time string to datetime object
         if (

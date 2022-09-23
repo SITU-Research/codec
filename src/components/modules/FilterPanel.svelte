@@ -1,5 +1,9 @@
 <script>
     import { ui_store, filter_toggles } from "../../stores/store";
+
+    function onCheckboxChange(event, filter, possible_value) {
+        $filter_toggles[filter][possible_value] = event.target.checked;
+    }
 </script>
 
 <div
@@ -33,9 +37,7 @@
                     <span>-</span>
                 </label>
             </form>
-            <span class="label_text" style="color:{value ? 'white' : ''}"
-                >{filter}</span
-            >
+            <span style="color:{value ? 'white' : ''}">{filter}</span>
         </div>
     {/each}
 </div>
@@ -116,9 +118,5 @@
     input:checked + span {
         background: white;
         border-color: white;
-    }
-
-    .label_text {
-        text-transform: capitalize;
     }
 </style>

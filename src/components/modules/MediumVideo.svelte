@@ -10,7 +10,7 @@
       src = null;
     }
   } else {
-    src = medium.url;
+    src = medium[$platform_config_store["Title of column used for url"]];
   }
 </script>
 

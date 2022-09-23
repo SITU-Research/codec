@@ -27,7 +27,6 @@
 
   #nonmedia_container {
     flex: 1 1 50%;
-    flex-grow: 1;
     display: flex;
     flex-flow: row nowrap;
     justify-items: stretch;
