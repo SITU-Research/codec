@@ -39,7 +39,7 @@
   let initial_setup_done;
 
   let camera, scene, renderer, canvasWidth, canvasHeight;
-  let mesh;
+  let mesh_notinview, mesh_inview;
   const amount = 50;
   const count = Math.pow(amount, 3);
   const dummy = new THREE.Object3D();
@@ -64,13 +64,16 @@
     let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
 
-    const material = new THREE.MeshBasicMaterial();
-    // check overdraw
-    // let material = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.1, transparent: true } );
+    const white_material = new THREE.MeshBasicMaterial({ color: "white" });
+    mesh_notinview = new THREE.InstancedMesh(geometry, white_material, count);
+    mesh_notinview.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
+    scene.add(mesh_notinview);
 
-    mesh = new THREE.InstancedMesh(geometry, material, count);
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
-    scene.add(mesh);
+    const red_material = new THREE.MeshBasicMaterial({ color: "red" });
+    mesh_inview = new THREE.InstancedMesh(geometry, red_material, count);
+    mesh_inview.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
+    scene.add(mesh_inview);
+
     const controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
     controls.enableZoom = false;
@@ -140,37 +143,82 @@
   };
 
   function render() {
-    if (mesh) {
+    if (mesh_notinview) {
       let i = 0;
 
-      videos_w_chrono.forEach((video) => {
-        // example starting time 1646352000000
-        let duration =
-          video.times[0].ending_time - video.times[0].starting_time;
+      videos_w_chrono
+        .filter((video) => {
+          return !$ui_store.media_in_view.includes(video.UAR);
+        })
+        .forEach((video) => {
+          // example starting time 1646352000000
+          let duration =
+            video.times[0].ending_time - video.times[0].starting_time;
 
-        let y_position;
-        if (orderedTime) {
-          y_position = i * 0.2;
-        } else {
-          y_position =
-            orderedOtherIndex[video[$platform_config_store["Assets ordering"]]];
-        }
+          let y_position;
+          if (orderedTime) {
+            y_position = i * 0.2;
+          } else {
+            y_position =
+              orderedOtherIndex[
+                video[$platform_config_store["Assets ordering"]]
+              ];
+          }
 
-        dummy.position.set(
-          (video.times[0].starting_time - timeBegin) * time_scale_factor +
-            0.5 * duration * time_scale_factor,
-          y_position,
-          0
-        );
+          dummy.position.set(
+            (video.times[0].starting_time - timeBegin) * time_scale_factor +
+              0.5 * duration * time_scale_factor,
+            y_position,
+            0
+          );
 
-        dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
+          dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
 
-        dummy.updateMatrix();
+          dummy.updateMatrix();
 
-        mesh.setMatrixAt(i++, dummy.matrix);
-      });
+          mesh_notinview.setMatrixAt(i++, dummy.matrix);
+        });
 
-      mesh.instanceMatrix.needsUpdate = true;
+      mesh_notinview.instanceMatrix.needsUpdate = true;
+    }
+
+    if (mesh_inview) {
+      let i = 0;
+
+      videos_w_chrono
+        .filter((video) => {
+          return $ui_store.media_in_view.includes(video.UAR);
+        })
+        .forEach((video) => {
+          // example starting time 1646352000000
+          let duration =
+            video.times[0].ending_time - video.times[0].starting_time;
+
+          let y_position;
+          if (orderedTime) {
+            y_position = i * 0.2;
+          } else {
+            y_position =
+              orderedOtherIndex[
+                video[$platform_config_store["Assets ordering"]]
+              ];
+          }
+
+          dummy.position.set(
+            (video.times[0].starting_time - timeBegin) * time_scale_factor +
+              0.5 * duration * time_scale_factor,
+            y_position,
+            0
+          );
+
+          dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
+
+          dummy.updateMatrix();
+
+          mesh_inview.setMatrixAt(i++, dummy.matrix);
+        });
+
+      mesh_inview.instanceMatrix.needsUpdate = true;
     }
 
     renderer.render(scene, camera);
@@ -181,7 +229,9 @@
     mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    const intersection = raycaster.intersectObject(mesh);
+    const intersection = raycaster
+      .intersectObject(mesh_notinview)
+      .concat(raycaster.intersectObject(mesh_inview));
 
     if (intersection.length > 0) {
       const instanceId = intersection[0].instanceId;
@@ -205,26 +255,46 @@
   let handleMouseUp = (event) => {
     clearTimeout(mouse_dragged_timeout);
     if (!mouse_dragged) {
-      mouse.x = (event.offsetX / canvasWidth) * 2 - 1;
-      mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-
-      const intersection = raycaster.intersectObject(mesh);
-
-      if (intersection.length > 0) {
-        const instanceId = intersection[0].instanceId;
-        let UAR = videos_w_chrono[instanceId].UAR;
-
-        if ($ui_store.media_in_view.includes(UAR)) {
-          $ui_store.media_in_view = $ui_store.media_in_view.filter(
-            (exist_UAR) => exist_UAR !== UAR
-          );
-        } else {
-          $ui_store.media_in_view = [...$ui_store.media_in_view, UAR];
-        }
-      }
+      let UAR = identify_video(event);
+      if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
+  };
+
+  let identify_video = (event) => {
+    mouse.x = (event.offsetX / canvasWidth) * 2 - 1;
+    mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+
+    let intersection = raycaster.intersectObject(mesh_notinview);
+    if (intersection.length > 0) {
+      const instanceId = intersection[0].instanceId;
+      let UAR = videos_w_chrono.filter((video) => {
+        return !$ui_store.media_in_view.includes(video.UAR);
+      })[instanceId].UAR;
+      return UAR;
+    }
+
+    intersection = raycaster.intersectObject(mesh_inview);
+    if (intersection.length > 0) {
+      const instanceId = intersection[0].instanceId;
+      let UAR = videos_w_chrono.filter((video) => {
+        return $ui_store.media_in_view.includes(video.UAR);
+      })[instanceId].UAR;
+      return UAR;
+    }
+
+    return null;
+  };
+
+  let toggle_in_view = (UAR) => {
+    if ($ui_store.media_in_view.includes(UAR)) {
+      $ui_store.media_in_view = $ui_store.media_in_view.filter(
+        (exist_UAR) => exist_UAR !== UAR
+      );
+    } else {
+      $ui_store.media_in_view = [...$ui_store.media_in_view, UAR];
+    }
   };
 
   let handleMouseLeave = () => {
