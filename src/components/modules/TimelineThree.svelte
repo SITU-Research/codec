@@ -39,7 +39,7 @@
   let initial_setup_done;
 
   let camera, scene, renderer, canvasWidth, canvasHeight;
-  let mesh_notinview, mesh_inview;
+  let mesh_notinview, white_material;
   const amount = 50;
   const count = Math.pow(amount, 3);
   const dummy = new THREE.Object3D();
@@ -64,15 +64,15 @@
     let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
 
-    const white_material = new THREE.MeshBasicMaterial({ color: "white" });
+    white_material = new THREE.MeshBasicMaterial({ color: "white" });
     mesh_notinview = new THREE.InstancedMesh(geometry, white_material, count);
     mesh_notinview.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
-    scene.add(mesh_notinview);
+    let color = new THREE.Color();
+    new Array(count).fill(0).forEach((c, i) => {
+      mesh_notinview.setColorAt(i, color.set(0xffffff));
+    });
 
-    const red_material = new THREE.MeshBasicMaterial({ color: "red" });
-    mesh_inview = new THREE.InstancedMesh(geometry, red_material, count);
-    mesh_inview.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
-    scene.add(mesh_inview);
+    scene.add(mesh_notinview);
 
     const controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
@@ -106,6 +106,8 @@
     videos_w_chrono = videos
       .filter((video) => video.start !== undefined)
       .sort((a, b) => b.times[0].starting_time - a.times[0].starting_time);
+
+    console.log(videos);
 
     orderedTime =
       $platform_config_store["Title of column used for chronolocation"] ==
@@ -146,79 +148,40 @@
     if (mesh_notinview) {
       let i = 0;
 
-      videos_w_chrono
-        .filter((video) => {
-          return !$ui_store.media_in_view.includes(video.UAR);
-        })
-        .forEach((video) => {
-          // example starting time 1646352000000
-          let duration =
-            video.times[0].ending_time - video.times[0].starting_time;
+      videos_w_chrono.forEach((video) => {
+        let duration =
+          video.times[0].ending_time - video.times[0].starting_time;
 
-          let y_position;
-          if (orderedTime) {
-            y_position = i * 0.2;
-          } else {
-            y_position =
-              orderedOtherIndex[
-                video[$platform_config_store["Assets ordering"]]
-              ];
-          }
+        let y_position;
+        if (orderedTime) {
+          y_position = i * 0.2;
+        } else {
+          y_position =
+            orderedOtherIndex[video[$platform_config_store["Assets ordering"]]];
+        }
 
-          dummy.position.set(
-            (video.times[0].starting_time - timeBegin) * time_scale_factor +
-              0.5 * duration * time_scale_factor,
-            y_position,
-            0
-          );
+        dummy.position.set(
+          (video.times[0].starting_time - timeBegin) * time_scale_factor +
+            0.5 * duration * time_scale_factor,
+          y_position,
+          0
+        );
 
-          dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
+        dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
 
-          dummy.updateMatrix();
+        dummy.updateMatrix();
 
-          mesh_notinview.setMatrixAt(i++, dummy.matrix);
-        });
+        if ($ui_store.media_in_view.includes(video.UAR)) {
+          mesh_notinview.setColorAt(i, new THREE.Color(0xff0000));
+        } else {
+          mesh_notinview.setColorAt(i, new THREE.Color(0xffffff));
+        }
+        mesh_notinview.setMatrixAt(i, dummy.matrix);
+        i += 1;
+      });
 
       mesh_notinview.instanceMatrix.needsUpdate = true;
-    }
-
-    if (mesh_inview) {
-      let i = 0;
-
-      videos_w_chrono
-        .filter((video) => {
-          return $ui_store.media_in_view.includes(video.UAR);
-        })
-        .forEach((video) => {
-          // example starting time 1646352000000
-          let duration =
-            video.times[0].ending_time - video.times[0].starting_time;
-
-          let y_position;
-          if (orderedTime) {
-            y_position = i * 0.2;
-          } else {
-            y_position =
-              orderedOtherIndex[
-                video[$platform_config_store["Assets ordering"]]
-              ];
-          }
-
-          dummy.position.set(
-            (video.times[0].starting_time - timeBegin) * time_scale_factor +
-              0.5 * duration * time_scale_factor,
-            y_position,
-            0
-          );
-
-          dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
-
-          dummy.updateMatrix();
-
-          mesh_inview.setMatrixAt(i++, dummy.matrix);
-        });
-
-      mesh_inview.instanceMatrix.needsUpdate = true;
+      mesh_notinview.instanceColor.needsUpdate = true;
     }
 
     renderer.render(scene, camera);
@@ -229,9 +192,7 @@
     mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    const intersection = raycaster
-      .intersectObject(mesh_notinview)
-      .concat(raycaster.intersectObject(mesh_inview));
+    const intersection = raycaster.intersectObject(mesh_notinview);
 
     if (intersection.length > 0) {
       const instanceId = intersection[0].instanceId;
@@ -256,6 +217,7 @@
     clearTimeout(mouse_dragged_timeout);
     if (!mouse_dragged) {
       let UAR = identify_video(event);
+      console.log(UAR);
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
@@ -269,18 +231,7 @@
     let intersection = raycaster.intersectObject(mesh_notinview);
     if (intersection.length > 0) {
       const instanceId = intersection[0].instanceId;
-      let UAR = videos_w_chrono.filter((video) => {
-        return !$ui_store.media_in_view.includes(video.UAR);
-      })[instanceId].UAR;
-      return UAR;
-    }
-
-    intersection = raycaster.intersectObject(mesh_inview);
-    if (intersection.length > 0) {
-      const instanceId = intersection[0].instanceId;
-      let UAR = videos_w_chrono.filter((video) => {
-        return $ui_store.media_in_view.includes(video.UAR);
-      })[instanceId].UAR;
+      let UAR = videos_w_chrono[instanceId].UAR;
       return UAR;
     }
 
