@@ -1,4 +1,5 @@
 <script>
+  import { missing_component } from "svelte/internal";
   import {
     media_store_filtered,
     ui_store,
@@ -68,14 +69,24 @@
       <td>time estimate</td>
       <td>{hovered_media.start_string_utc}</td>
     </tr>
-    <tr>
-      <td>latitude</td>
-      <td>{hovered_media.lat}</td>
-    </tr>
-    <tr>
-      <td>longitude</td>
-      <td>{hovered_media.long}</td>
-    </tr>
+    {#if hovered_media.lat}
+      <tr>
+        <td>latitude</td>
+        <td>{hovered_media.lat}</td>
+      </tr>
+    {/if}
+    {#if hovered_media.long}
+      <tr>
+        <td>longitude</td>
+        <td>{hovered_media.long}</td>
+      </tr>
+    {/if}
+    {#if hovered_media["Misc Notes"]}
+      <tr>
+        <td>notes</td>
+        <td>{hovered_media["Misc Notes"]}</td>
+      </tr>
+    {/if}
   </table>
 {/if}
 
