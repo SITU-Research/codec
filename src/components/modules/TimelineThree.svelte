@@ -259,7 +259,7 @@
   };
 
   let handleScroll = (event) => {
-    console.log("---- handle scroll -----");
+    // console.log("---- handle scroll -----");
 
     let mouse_vector = new THREE.Vector3();
     mouse_vector.set(
@@ -269,16 +269,16 @@
     );
     mouse_vector.unproject(camera);
 
-    console.log("camera.left", camera.left);
-    console.log("mouse_vector.x", mouse_vector.x);
-    console.log("camera.right", camera.right);
+    // console.log("camera.left", camera.left);
+    // console.log("mouse_vector.x", mouse_vector.x);
+    // console.log("camera.right", camera.right);
 
     let d_l = mouse_vector.x - camera.left;
     let d_r = camera.right - mouse_vector.x;
     let d_ratio = d_l / d_r;
-    console.log("d_l", d_l);
-    console.log("d_r", d_r);
-    console.log("d_ratio", d_ratio);
+    // console.log("d_l", d_l);
+    // console.log("d_r", d_r);
+    // console.log("d_ratio", d_ratio);
 
     camera.left +=
       (mouse_vector.x - camera.left) * 0.2 * Math.sign(event.wheelDelta);
