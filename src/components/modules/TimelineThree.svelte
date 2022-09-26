@@ -148,36 +148,44 @@
     if (mesh_notinview) {
       let i = 0;
 
-      videos_w_chrono.forEach((video) => {
-        let duration =
-          video.times[0].ending_time - video.times[0].starting_time;
+      new Array(count).fill(0).forEach((c, i) => {
+        if (i < videos_w_chrono.length) {
+          let video = videos_w_chrono[i];
+          let duration =
+            video.times[0].ending_time - video.times[0].starting_time;
 
-        let y_position;
-        if (orderedTime) {
-          y_position = i * 0.2;
+          let y_position;
+          if (orderedTime) {
+            y_position = i * 0.2;
+          } else {
+            y_position =
+              orderedOtherIndex[
+                video[$platform_config_store["Assets ordering"]]
+              ];
+          }
+
+          dummy.position.set(
+            (video.times[0].starting_time - timeBegin) * time_scale_factor +
+              0.5 * duration * time_scale_factor,
+            y_position,
+            0
+          );
+
+          dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
+
+          dummy.updateMatrix();
+
+          if ($ui_store.media_in_view.includes(video.UAR)) {
+            mesh_notinview.setColorAt(i, new THREE.Color(0xff0000));
+          } else {
+            mesh_notinview.setColorAt(i, new THREE.Color(0xffffff));
+          }
+          mesh_notinview.setMatrixAt(i, dummy.matrix);
+          i += 1;
         } else {
-          y_position =
-            orderedOtherIndex[video[$platform_config_store["Assets ordering"]]];
+          dummy.scale.set(0, 0, 0);
+          mesh_notinview.setMatrixAt(i, dummy.matrix);
         }
-
-        dummy.position.set(
-          (video.times[0].starting_time - timeBegin) * time_scale_factor +
-            0.5 * duration * time_scale_factor,
-          y_position,
-          0
-        );
-
-        dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
-
-        dummy.updateMatrix();
-
-        if ($ui_store.media_in_view.includes(video.UAR)) {
-          mesh_notinview.setColorAt(i, new THREE.Color(0xff0000));
-        } else {
-          mesh_notinview.setColorAt(i, new THREE.Color(0xffffff));
-        }
-        mesh_notinview.setMatrixAt(i, dummy.matrix);
-        i += 1;
       });
 
       mesh_notinview.instanceMatrix.needsUpdate = true;
