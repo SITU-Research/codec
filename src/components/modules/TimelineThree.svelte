@@ -107,8 +107,6 @@
       .filter((video) => video.start !== undefined)
       .sort((a, b) => b.times[0].starting_time - a.times[0].starting_time);
 
-    console.log(videos);
-
     orderedTime =
       $platform_config_store["Title of column used for chronolocation"] ==
       $platform_config_store["Assets ordering"];
@@ -261,10 +259,33 @@
   };
 
   let handleScroll = (event) => {
+    console.log("---- handle scroll -----");
+
+    let mouse_vector = new THREE.Vector3();
+    mouse_vector.set(
+      (event.offsetX / canvasWidth) * 2 - 1,
+      -(event.offsetY / canvasHeight) * 2 + 1,
+      0
+    );
+    mouse_vector.unproject(camera);
+
+    console.log("camera.left", camera.left);
+    console.log("mouse_vector.x", mouse_vector.x);
+    console.log("camera.right", camera.right);
+
+    let d_l = mouse_vector.x - camera.left;
+    let d_r = camera.right - mouse_vector.x;
+    let d_ratio = d_l / d_r;
+    console.log("d_l", d_l);
+    console.log("d_r", d_r);
+    console.log("d_ratio", d_ratio);
+
     camera.left +=
-      (camera.position.x - camera.left) * 0.2 * Math.sign(event.wheelDelta);
-    camera.right -=
-      (camera.right - camera.position.x) * 0.2 * Math.sign(event.wheelDelta);
+      (mouse_vector.x - camera.left) * 0.2 * Math.sign(event.wheelDelta);
+
+    let d_l_new = mouse_vector.x - camera.left;
+    let d_r_new = d_l_new / d_ratio;
+    camera.right = mouse_vector.x + d_r_new;
 
     camera.updateProjectionMatrix();
   };
