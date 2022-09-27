@@ -58,16 +58,20 @@
       <td>{hovered_UAR}</td>
     </tr>
     <tr>
+      <td>date</td>
+      <td>{hovered_media["ChronoDateTime"].slice(0, 11)}</td>
+    </tr>
+    <tr>
+      <td>time</td>
+      <td>{hovered_media.start_string_utc}</td>
+    </tr>
+    <tr>
       <td>duration</td>
       <td
         >{hovered_media[
           $platform_config_store["Title of column used for duration"]
         ]}</td
       >
-    </tr>
-    <tr>
-      <td>time estimate</td>
-      <td>{hovered_media.start_string_utc}</td>
     </tr>
     {#if hovered_media.lat}
       <tr>
