@@ -281,7 +281,7 @@
     // console.log("d_ratio", d_ratio);
 
     camera.left +=
-      (mouse_vector.x - camera.left) * 0.2 * Math.sign(event.wheelDelta);
+      (mouse_vector.x - camera.left) * 0.05 * Math.sign(event.wheelDelta);
 
     let d_l_new = mouse_vector.x - camera.left;
     let d_r_new = d_l_new / d_ratio;
