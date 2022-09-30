@@ -41,7 +41,7 @@ exports.handler = async (event, context, callback) => {
             let byte_len = Buffer.byteLength(JSON.stringify(items))
             console.log(requested_sheet_title, 'sheet byte length: ', byte_len)
             if (byte_len > 6000000) {
-                let max_items_length = Math.floor(6000000.0 / byte_len * items.length)
+                let max_items_length = Math.floor(6000000.0 / byte_len * items.length * 0.8)
                 console.log('Truncating, only sending ', max_items_length, '/', items.length)
                 return {
                     statusCode: 200,
