@@ -69,6 +69,14 @@
       >
     </tr>
     <tr>
+      <td>date</td>
+      <td
+        >{hovered_media[
+          $platform_config_store["Title of column used for chronolocation"]
+        ].slice(0, 11)}</td
+      >
+    </tr>
+    <tr>
       <td>time estimate</td>
       <td>{hovered_media.start_string_utc}</td>
     </tr>
