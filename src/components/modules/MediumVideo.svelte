@@ -14,9 +14,16 @@
   }
 </script>
 
-<div class="medium_video" id={medium.id}>
-  <video controls muted {src} type="video/mp4" />
-</div>
+{#if src.includes("mp4") || src.includes("mov")}
+  <div class="medium_video" id={medium.id}>
+    <video controls muted {src} type="video/mp4" />
+  </div>
+{:else if src.includes("png") || src.includes("jpeg") || src.includes("jpg")}
+  <div class="medium_image" id={medium.id}>
+    <!-- svelte-ignore a11y-missing-attribute -->
+    <img {src} />
+  </div>
+{/if}
 
 <style>
   .medium_video {
@@ -24,6 +31,14 @@
     height: 40vh;
     margin: 0 auto;
     overflow: hidden; /* Add this */
+  }
+
+  .medium_image {
+    height: 40vh;
+    display: flex;
+    flex-flow: column;
+    flex-direction: row;
+    justify-content: center;
   }
 
   video {
