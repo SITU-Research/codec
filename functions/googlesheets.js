@@ -33,7 +33,6 @@ exports.handler = async (event, context, callback) => {
             }
         } else if (request.includes('size')) {
             let requested_sheet = request.slice(5)
-            console.log(requested_sheet, requested_sheet_offset)
             const list_sheet_index = sheet_ids_by_title[requested_sheet]
             //ensure an non empty columns exists after the last filled column in that top row
             let sheet_rows = await doc.sheetsByIndex[list_sheet_index].getRows({ offset: requested_sheet_offset })
