@@ -101,7 +101,6 @@
             );
           })
           .then((media) => {
-            console.log("in process promise", media);
             process_video_sheet_response(media);
           })
           .then(() => {
