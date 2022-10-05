@@ -11,7 +11,6 @@ exports.handler = async (event, context, callback) => {
 
         const requested_sheet_title = event.queryStringParameters.sheet
         const requested_sheet_offset = parseInt(event.queryStringParameters.offset) - 2
-
         let sheet_ids_by_title = {}
         Object.keys(doc._rawSheets).forEach((key) => {
             let sheet = doc._rawSheets[key]
