@@ -12,16 +12,19 @@
     platform_config_store,
   } from "../../stores/store";
 
-  let videos,
-    videos_w_chrono,
-    timeBegin = 0,
-    timeEnd,
-    time2x,
-    x2time,
-    orderedTime = true,
-    orderedOtherIndex = {};
-
+  // parameters
   let time_scale_factor = 0.00001;
+
+  let videos, // videos coming in from store (currently set to filtered videos)
+    videos_w_chrono, // array of video with chronolocation information
+    timeBegin = 0, // date for beginning time of timeline,in ms since jan 1 1970
+    timeEnd, // date for ending time of timeline,in ms since jan 1 1970
+    time2x, // function to convert time in ms since jan 1 1970 to x coordinate in 3js space
+    x2time, // inverse of time2x
+    orderedByTime = true, // boolean whether video should be positioned vertically by time
+    orderedOtherIndex = {}, // dictionary: a video's property value > vertical position
+    free_time_at_row = [], // array containing, for every vertical row, when the latest video on that row ends
+    video_y_position = []; // array containing, for every video, their vertical position
 
   let el, container;
   var ro = new ResizeObserver((entries) => {
@@ -39,7 +42,7 @@
   let initial_setup_done;
 
   let camera, scene, renderer, canvasWidth, canvasHeight;
-  let mesh_notinview, white_material;
+  let mesh, white_material;
   const amount = 50;
   const count = Math.pow(amount, 3);
   const dummy = new THREE.Object3D();
@@ -64,15 +67,17 @@
     let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
 
-    white_material = new THREE.MeshBasicMaterial({ color: "white" });
-    mesh_notinview = new THREE.InstancedMesh(geometry, white_material, count);
-    mesh_notinview.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
+    white_material = new THREE.MeshBasicMaterial({
+      color: "white",
+    });
+    mesh = new THREE.InstancedMesh(geometry, white_material, count);
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
     let color = new THREE.Color();
     new Array(count).fill(0).forEach((c, i) => {
-      mesh_notinview.setColorAt(i, color.set(0xffffff));
+      mesh.setColorAt(i, color.set(0xffffff));
     });
 
-    scene.add(mesh_notinview);
+    scene.add(mesh);
 
     const controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
@@ -101,16 +106,59 @@
     x2time = (x) => {
       return (x + timeBegin) * time_scale_factor;
     };
+  }
 
+  $: {
     videos = Object.values($media_store_filtered);
     videos_w_chrono = videos
-      .filter((video) => video.start !== undefined)
-      .sort((a, b) => b.times[0].starting_time - a.times[0].starting_time);
+      .filter(
+        (video) =>
+          video.times !== undefined &&
+          video.times[0].starting_time !== undefined &&
+          video.times[0].ending_time !== undefined &&
+          !isNaN(video.times[0].starting_time) &&
+          !isNaN(video.times[0].ending_time)
+      )
+      .sort((a, b) => a.times[0].starting_time - b.times[0].starting_time);
 
-    orderedTime =
+    if (
+      $platform_config_store["Assets ordering"] == undefined ||
       $platform_config_store["Title of column used for chronolocation"] ==
-      $platform_config_store["Assets ordering"];
-    if (!orderedTime) {
+        $platform_config_store["Assets ordering"]
+    ) {
+      orderedByTime = true;
+
+      //
+      free_time_at_row = [];
+
+      videos_w_chrono.forEach((video, v) => {
+        let slotted_in = false;
+        free_time_at_row.forEach((row_free_time, r) => {
+          if (!slotted_in) {
+            if (video.times[0].starting_time >= row_free_time) {
+              slotted_in = true;
+              video_y_position[v] = r;
+              if (!isNaN(video.times[0].ending_time)) {
+                free_time_at_row[r] = video.times[0].ending_time;
+              }
+            }
+          }
+        });
+        if (!slotted_in) {
+          let added_row;
+          if (!isNaN(video.times[0].ending_time)) {
+            added_row = video.times[0].ending_time;
+          } else if (!isNaN(video.times[0].starting_time)) {
+            added_row = video.times[0].starting_time;
+          } else {
+            added_row = 0;
+          }
+          free_time_at_row.push(added_row);
+          video_y_position[v] = free_time_at_row.length;
+        }
+      });
+    } else {
+      orderedByTime = false;
       let unique_order_value = [
         ...new Set(
           videos_w_chrono.map(
@@ -122,19 +170,23 @@
         orderedOtherIndex[value] = i;
       });
     }
+  }
 
+  $: {
     if (camera && !initial_setup_done) {
       camera.left = time2x(timeBegin);
       camera.right = time2x(timeEnd);
 
-      if (!orderedTime) {
+      if (!orderedByTime) {
         camera.top = Math.max(...Object.values(orderedOtherIndex)) + 1;
         camera.bottom = Math.min(...Object.values(orderedOtherIndex)) - 1;
+      } else {
+        camera.top = free_time_at_row.length - 0.5;
+        camera.bottom = -0.5;
       }
       camera.updateProjectionMatrix();
+      if (videos.length > 0) initial_setup_done = true;
     }
-
-    if (videos.length > 0) initial_setup_done = true;
   }
 
   const animate = () => {
@@ -143,7 +195,7 @@
   };
 
   function render() {
-    if (mesh_notinview) {
+    if (mesh) {
       let i = 0;
 
       new Array(count).fill(0).forEach((c, i) => {
@@ -153,8 +205,8 @@
             video.times[0].ending_time - video.times[0].starting_time;
 
           let y_position;
-          if (orderedTime) {
-            y_position = i * 0.2;
+          if (orderedByTime) {
+            y_position = video_y_position[i];
           } else {
             y_position =
               orderedOtherIndex[
@@ -174,20 +226,20 @@
           dummy.updateMatrix();
 
           if ($ui_store.media_in_view.includes(video.UAR)) {
-            mesh_notinview.setColorAt(i, new THREE.Color(0xff0000));
+            mesh.setColorAt(i, new THREE.Color(0xff0000));
           } else {
-            mesh_notinview.setColorAt(i, new THREE.Color(0xffffff));
+            mesh.setColorAt(i, new THREE.Color(0xffffff));
           }
-          mesh_notinview.setMatrixAt(i, dummy.matrix);
+          mesh.setMatrixAt(i, dummy.matrix);
           i += 1;
         } else {
           dummy.scale.set(0, 0, 0);
-          mesh_notinview.setMatrixAt(i, dummy.matrix);
+          mesh.setMatrixAt(i, dummy.matrix);
         }
       });
 
-      mesh_notinview.instanceMatrix.needsUpdate = true;
-      mesh_notinview.instanceColor.needsUpdate = true;
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.instanceColor.needsUpdate = true;
     }
 
     renderer.render(scene, camera);
@@ -198,7 +250,7 @@
     mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    const intersection = raycaster.intersectObject(mesh_notinview);
+    const intersection = raycaster.intersectObject(mesh);
 
     if (intersection.length > 0) {
       const instanceId = intersection[0].instanceId;
@@ -223,7 +275,6 @@
     clearTimeout(mouse_dragged_timeout);
     if (!mouse_dragged) {
       let UAR = identify_video(event);
-      console.log(UAR);
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
@@ -234,7 +285,7 @@
     mouse.y = -(event.offsetY / canvasHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    let intersection = raycaster.intersectObject(mesh_notinview);
+    let intersection = raycaster.intersectObject(mesh);
     if (intersection.length > 0) {
       const instanceId = intersection[0].instanceId;
       let UAR = videos_w_chrono[instanceId].UAR;

@@ -14,6 +14,10 @@
     platform_config_store,
   } from "./stores/store";
 
+  // parameters
+  const fetch_interval_ms = 30000;
+
+  // variables
   let mouse_xy = { x: 0, y: 0 };
   let handleMouseMove = throttle((event) => {
     mouse_xy.x = event.clientX;
@@ -29,7 +33,10 @@
   }, 500);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 1000000);
+    let fetch_interval = setInterval(
+      fetch_google_sheet_data,
+      fetch_interval_ms
+    );
     return () => {
       clearInterval(fetch_interval);
     };
