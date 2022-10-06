@@ -334,7 +334,6 @@
 
     let d_l_new = mouse_vector.x - camera.left;
     let d_r_new = d_l_new / d_ratio;
-    console.log("new d_ratio", d_l_new / d_r_new);
 
     camera.right = mouse_vector.x + d_r_new;
     camera.updateProjectionMatrix();
