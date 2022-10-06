@@ -77,16 +77,21 @@
 
 <div id="report_module">
   <!-- svelte-ignore a11y-media-has-caption -->
-  <video
-    bind:this={video_el}
-    bind:currentTime
-    bind:duration
-    bind:paused
-    on:click={handleOnVideoClick}
-    on:timeupdate={handleOnVideoTimeUpdate}
-  >
-    <source src={$platform_config_store["Report video url"]} type="video/mp4" />
-  </video>
+  <div id="video_container">
+    <video
+      bind:this={video_el}
+      bind:currentTime
+      bind:duration
+      bind:paused
+      on:click={handleOnVideoClick}
+      on:timeupdate={handleOnVideoTimeUpdate}
+    >
+      <source
+        src={$platform_config_store["Report video url"]}
+        type="video/mp4"
+      />
+    </video>
+  </div>
   <div id="report_controls">
     <button
       class="box text_level2 noselect"
@@ -131,14 +136,22 @@
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     color: white;
   }
 
-  video {
+  #video_container {
     flex-grow: 2;
-    max-width: 100%;
-    max-height: 100%;
+    position: relative;
+    margin: 10px;
+  }
+
+  video {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
   }
 
   #report_controls {
@@ -149,6 +162,7 @@
     justify-content: space-evenly;
     align-items: center;
     color: white;
+    margin: 10px;
   }
 
   button {
