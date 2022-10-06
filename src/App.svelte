@@ -29,7 +29,7 @@
   }, 500);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
+    let fetch_interval = setInterval(fetch_google_sheet_data, 45000);
     return () => {
       clearInterval(fetch_interval);
     };
