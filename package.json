@@ -19,14 +19,13 @@
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
     "svelte": "^3.0.0",
-    "svelte-grid": "^5.1.1",
     "svelte-watch-resize": "^1.0.3"
   },
   "dependencies": {
     "google-spreadsheet": "^3.2.0",
     "mapbox-gl": "^2.7.0",
     "sirv-cli": "^2.0.0",
-    "underscore": "^1.13.2",
-    "vis-timeline": "^7.5.0"
+    "three": "^0.145.0",
+    "underscore": "^1.13.2"
   }
 }
