@@ -14,6 +14,7 @@
 
   // parameters
   let time_scale_factor = 0.00001;
+  let scroll_percent_in = 15; // what percentage to cut off/add left + right when zooming in/out
 
   let videos, // videos coming in from store (currently set to filtered videos)
     videos_w_chrono, // array of video with chronolocation information
@@ -310,34 +311,32 @@
   };
 
   let handleScroll = (event) => {
-    // console.log("---- handle scroll -----");
-
     let mouse_vector = new THREE.Vector3();
     mouse_vector.set(
       (event.offsetX / canvasWidth) * 2 - 1,
       -(event.offsetY / canvasHeight) * 2 + 1,
       0
     );
-    mouse_vector.unproject(camera);
+    mouse_vector.unproject(camera); // -> giving wrong values where mouse outside camera left-right
 
-    // console.log("camera.left", camera.left);
-    // console.log("mouse_vector.x", mouse_vector.x);
-    // console.log("camera.right", camera.right);
-
+    // distance of mouse to left edge
     let d_l = mouse_vector.x - camera.left;
+    // distance of mouse to right edge
     let d_r = camera.right - mouse_vector.x;
+    // ratio of distance, ie 0 totally left <---> 1 totally right
     let d_ratio = d_l / d_r;
-    // console.log("d_l", d_l);
-    // console.log("d_r", d_r);
-    // console.log("d_ratio", d_ratio);
 
     camera.left +=
-      (mouse_vector.x - camera.left) * 0.05 * Math.sign(event.wheelDelta);
+      (mouse_vector.x - camera.left) *
+      scroll_percent_in *
+      0.01 *
+      Math.sign(event.wheelDelta);
 
     let d_l_new = mouse_vector.x - camera.left;
     let d_r_new = d_l_new / d_ratio;
-    camera.right = mouse_vector.x + d_r_new;
+    console.log("new d_ratio", d_l_new / d_r_new);
 
+    camera.right = mouse_vector.x + d_r_new;
     camera.updateProjectionMatrix();
   };
 </script>
