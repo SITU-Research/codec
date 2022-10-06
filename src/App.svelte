@@ -29,39 +29,91 @@
   }, 500);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
+    let fetch_interval = setInterval(fetch_google_sheet_data, 1000000);
     return () => {
       clearInterval(fetch_interval);
     };
   });
 
   function fetch_google_sheet_data() {
+    let assets_requests = [];
     return fetch(
-      `/.netlify/functions/googlesheets?sheet=platformconfig&offset=1`
+      `/.netlify/functions/googlesheets?request=platformconfig&offset=1`
     )
       .then((rows_string) => rows_string.json())
       .then((platform_config) => {
         $platform_config_store = platform_config;
         fetch(
-          `/.netlify/functions/googlesheets?sheet=` +
+          `/.netlify/functions/googlesheets?request=size_` +
             platform_config["Title of tab with media assets"] +
             `&offset=` +
             platform_config["Rank of assets row with column names"]
         )
-          .then((rows_string) => rows_string.json())
+          .then((assets_info) => assets_info.json())
+          .then((assets_info) => {
+            let n_necessary_requests = assets_info.total_size / 5500000.0; // max size is 6k, doing 5.5k for padding
+            let n_rows_per_requests = Math.floor(
+              assets_info.n_rows / n_necessary_requests
+            );
+
+            let request_row_start = 0;
+            for (let r = 0; r < Math.floor(n_necessary_requests); r++) {
+              assets_requests.push({
+                start: request_row_start,
+                end: request_row_start + n_rows_per_requests,
+              });
+              request_row_start += n_rows_per_requests + 1;
+            }
+            let n_rows_last_request = assets_info.n_rows - request_row_start;
+
+            assets_requests.push({
+              start: request_row_start,
+              end: request_row_start + n_rows_last_request,
+            });
+
+            return assets_requests;
+          })
+          .then((assets_requests) => {
+            let media = [];
+
+            let request_range = (assets_request) =>
+              fetch(
+                `/.netlify/functions/googlesheets?request=` +
+                  platform_config["Title of tab with media assets"] +
+                  `&offset=` +
+                  platform_config["Rank of assets row with column names"] +
+                  `&rangeStart=` +
+                  assets_request.start +
+                  `&rangeEnd=` +
+                  assets_request.end
+              );
+
+            return assets_requests.reduce(
+              (p, assets_request) =>
+                p
+                  .then(() => request_range(assets_request))
+                  .then((rows_string) => rows_string.json())
+                  .then((rows) => {
+                    media = media.concat(rows);
+                    return media;
+                  }),
+              Promise.resolve()
+            );
+          })
           .then((media) => {
             process_video_sheet_response(media);
-          });
-
-        fetch(
-          `/.netlify/functions/googlesheets?sheet=` +
-            platform_config["Title of tab with events"] +
-            `&offset=` +
-            platform_config["Rank of events row with column names"]
-        )
-          .then((rows_string) => rows_string.json())
-          .then((events) => {
-            process_event_sheet_response(events);
+          })
+          .then(() => {
+            fetch(
+              `/.netlify/functions/googlesheets?request=` +
+                platform_config["Title of tab with events"] +
+                `&offset=` +
+                platform_config["Rank of events row with column names"]
+            )
+              .then((rows_string) => rows_string.json())
+              .then((events) => {
+                process_event_sheet_response(events);
+              });
           });
       });
   }

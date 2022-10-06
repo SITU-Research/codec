@@ -7,7 +7,7 @@ export const platform_config_store = writable({})
 
 
 export const ui_store = writable({
-    modules_in_view: ['timeline', 'map', 'media'],
+    modules_in_view: ['map', 'media'],
     media_in_view: [],
     media_hovered: [],
     filter_in_view: false,
