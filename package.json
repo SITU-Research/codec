@@ -12,7 +12,6 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-replace": "^3.1.0",
-    "netlify-cli": "^9.6.5",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -25,8 +24,9 @@
   "dependencies": {
     "google-spreadsheet": "^3.2.0",
     "mapbox-gl": "^2.7.0",
+    "netlify-cli": "^12.0.7",
     "sirv-cli": "^2.0.0",
-    "underscore": "^1.13.2",
+    "underscore": "^1.13.6",
     "vis-timeline": "^7.5.0"
   }
 }

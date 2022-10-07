@@ -32,6 +32,12 @@
     skipToChapter();
   };
 
+  let onPlayPauseClick = () => {
+    if (paused) {
+      video_el.play();
+    } else video_el.pause();
+  };
+
   let onNextClick = () => {
     report_chapter_idx = report_chapter_idx + 1;
     skipToChapter();
@@ -98,6 +104,11 @@
       on:click={onPrevClick}
       disabled={currentTime <= 0.5}>previous</button
     >
+
+    <button class="box text_level2 noselect" on:click={onPlayPauseClick}>
+      {paused ? "play" : "pause"}</button
+    >
+
     <div class="progress_bar" bind:offsetWidth={progress_bar_el_width}>
       <progress value={currentTime / duration || 0} />
       <svg id="chapter_dots">
@@ -168,6 +179,7 @@
   button {
     color: white;
     outline-color: white;
+    width: calc(6 * var(--font-size));
   }
 
   button:disabled {
