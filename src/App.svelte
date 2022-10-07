@@ -197,6 +197,11 @@
           }
         });
 
+        // some UARs have _V at the end
+        if (video.UAR.slice(video.UAR.length - 2) == "_V") {
+          video.UAR = video.UAR.slice(0, video.UAR.length - 2);
+        }
+
         // properties for map
         if (
           video[$platform_config_store["Title of column used for latitude"]] &&
@@ -259,27 +264,6 @@
             return;
           }
         }
-
-        // // properties for filter
-        // Object.entries($filter_toggles).forEach((pair) => {
-        //   let [toggle, value] = pair;
-        //   if (typeof value === "object") {
-        //     let responses = video[toggle];
-        //     if (responses == undefined) return;
-        //     responses = responses.replaceAll(" ", "");
-        //     responses
-        //       .split(",")
-        //       .filter((response) => {
-        //         return !["", " ", "NULL"].includes(response);
-        //       })
-        //       .forEach((response) => {
-        //         if (!Object.keys(value).includes(response)) {
-        //           value[response] = false;
-        //         }
-        //       });
-        //   }
-        //   $filter_toggles[toggle] = value;
-        // });
 
         new_videos[video.UAR] = video;
       } catch (error) {

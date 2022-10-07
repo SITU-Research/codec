@@ -63,7 +63,11 @@
     </tr>
     <tr>
       <td>date</td>
-      <td>{hovered_media["ChronoDateTime"].slice(0, 11)}</td>
+      <td
+        >{hovered_media[
+          $platform_config_store["Title of column used for chronolocation"]
+        ]?.slice(0, 11)}</td
+      >
     </tr>
     <tr>
       <td>time</td>
