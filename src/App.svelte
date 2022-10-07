@@ -15,7 +15,7 @@
   } from "./stores/store";
 
   // parameters
-  const fetch_interval_ms = 30000;
+  const fetch_interval_ms = 60000;
 
   // variables
   let mouse_xy = { x: 0, y: 0 };

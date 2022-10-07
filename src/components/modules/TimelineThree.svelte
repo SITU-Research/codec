@@ -109,6 +109,21 @@
     };
   }
 
+  $: temporal_nav_periods = $platform_config_store["Temporal nav periods"]
+    .split("\n")
+    .map((period_string) => {
+      let [period_title, period_dates_string] = period_string.split("~");
+      let [period_start_string, period_end_string] =
+        period_dates_string.split(">");
+      let period_start = new Date(period_start_string).getTime();
+      let period_end = new Date(period_end_string).getTime();
+      return {
+        title: period_title,
+        start: period_start,
+        end: period_end,
+      };
+    });
+
   $: {
     videos = Object.values($media_store_filtered);
     videos_w_chrono = videos
@@ -338,9 +353,41 @@
     camera.right = mouse_vector.x + d_r_new;
     camera.updateProjectionMatrix();
   };
+
+  let handleOnTempNavClick = (period) => {
+    console.log("-- on temp nav click --");
+    console.log("before");
+    console.log(
+      `camera position: ${camera.position.x},${camera.position.y},${camera.position.z}`
+    );
+    console.log(`camera left,right: ${camera.left}, ${camera.right}`);
+    let camera_x_new = time2x(period.end) / 2 - time2x(period.start) / 2;
+    camera.translateX(camera_x_new - camera.position.x);
+    camera.updateProjectionMatrix();
+    console.log("after");
+    console.log(
+      `camera position: ${camera.position.x},${camera.position.y},${camera.position.z}`
+    );
+    console.log(`camera left: ${camera.left}, ${camera.right}`);
+  };
 </script>
 
 <div bind:this={container} on:mousewheel={handleScroll} id="timeline_container">
+  {#if temporal_nav_periods}
+    <div id="temporal_nav">
+      {#each temporal_nav_periods as period}
+        <button
+          class="box text_level2 noselect"
+          on:click={() => {
+            handleOnTempNavClick(period);
+          }}>{period.title}</button
+        >
+      {/each}
+      <button class="box text_level2 noselect"
+        >FILTER MAP BY TIMELINE EXTENTS</button
+      >
+    </div>
+  {/if}
   <canvas
     bind:this={el}
     on:mousemove={handleMouseMove_throttle}
@@ -355,6 +402,12 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  #temporal_nav {
+    z-index: 1;
   }
 
   canvas {
