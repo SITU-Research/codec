@@ -1,6 +1,6 @@
-<script>
-  import { ui_store, media_store } from "../../stores/store";
-  import Module from "./Module.svelte";
+<script lang="ts">
+ import { ui_store, media_store } from "../../stores/store";
+ import Module from "./Module.svelte";
 </script>
 
 <div class="media">
