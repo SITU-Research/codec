@@ -4,6 +4,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
+import autoPreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
 
 import replace from '@rollup/plugin-replace';
 
@@ -48,6 +50,7 @@ export default {
 		}),
 
 		svelte({
+			preprocess: autoPreprocess(),
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
@@ -67,6 +70,7 @@ export default {
 			dedupe: ['svelte']
 		}),
 		commonjs(),
+		typescript({ sourceMap: !production }),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
