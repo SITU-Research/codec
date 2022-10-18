@@ -12,15 +12,22 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-replace": "^3.1.0",
+    "@tsconfig/svelte": "^3.0.0",
+    "netlify-cli": "^9.6.5",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
     "svelte": "^3.0.0",
-    "svelte-watch-resize": "^1.0.3"
+    "svelte-check": "^2.9.2",
+    "svelte-grid": "^5.1.1",
+    "svelte-preprocess": "^4.10.7",
+    "svelte-watch-resize": "^1.0.3",
+    "typescript": "^4.8.4"
   },
   "dependencies": {
+    "@rollup/plugin-typescript": "^9.0.1",
     "google-spreadsheet": "^3.2.0",
     "mapbox-gl": "^2.7.0",
     "netlify-cli": "^12.0.7",
