@@ -24,6 +24,8 @@
     mouse_xy.y = event.clientY;
   }, 5);
 
+  const CONTENT_ANALYSIS_FIRST_COLUMN = 12;
+
   let width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
   let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
 
@@ -167,6 +169,17 @@
   function process_video_sheet_response(rows) {
     // first row of table is column names
     let column_names = rows[0];
+
+    /* 
+      TODO: 
+      -design the column index using platform config
+      -Define pros and cons
+    */
+    // separate rows related to content analysis
+    let content_analysis_columns = column_names.filter(
+      (elem, index) => index >= CONTENT_ANALYSIS_FIRST_COLUMN
+    );
+
     // create array to feed data as being processed
     let new_videos = {};
 
@@ -175,12 +188,24 @@
       try {
         // create a video object
         let video = {};
+        // define contentAnalysis object
+        video.contentAnalysis = {};
         // for each column in row
         row.forEach((col_value, i) => {
           // assign the new object the column value under the correct key
 
-          // if the col value a string boolean
+          // assign to contentAnalysis
+          if (content_analysis_columns.includes(column_names[i])) {
+            // transform spaces into _ (we)
+            video.contentAnalysis[column_names[i]] =
+              col_value == "TRUE" || col_value == "FALSE"
+                ? col_value == "TRUE"
+                : col_value;
+          }
+
           if (col_value == "TRUE" || col_value == "FALSE") {
+            // if the col value a string boolean
+
             // transform string boolean to actual boolean
             video[column_names[i]] = col_value == "TRUE";
             // if boolean not already in filter_toggles (only need to do once on first row)
@@ -322,3 +347,4 @@
     </div>
   {/await}
 </main>
+

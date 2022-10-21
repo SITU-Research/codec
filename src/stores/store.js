@@ -11,6 +11,7 @@ export const ui_store = writable({
     media_in_view: [],
     media_hovered: [],
     filter_in_view: false,
+    open_form: []
 })
 
 export const filter_toggles = writable({

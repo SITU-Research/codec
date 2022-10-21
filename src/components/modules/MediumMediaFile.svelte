@@ -1,22 +1,25 @@
 <script lang="ts">
-  import { local_file_store, platform_config_store } from "../../stores/store";
-  export let medium;
+ import MediaForm from "./MediaForm.svelte";
 
-  let src;
-  if ($platform_config_store["Source of media files"].includes("local")) {
-    try {
-      src = URL.createObjectURL($local_file_store[medium.UAR]);
-    } catch {
-      src = null;
-    }
-  } else {
-    src = medium[$platform_config_store["Title of column used for url"]];
-  }
+ import { local_file_store, platform_config_store } from "../../stores/store";
+ export let medium;
 
-  /* We check if we have some kind of photo or a video*/
-  const isPhoto = src.match(/.jpg|.png|.jpeg/i) || false;
+ let src;
+ if ($platform_config_store["Source of media files"].includes("local")) {
+   try {
+     src = URL.createObjectURL($local_file_store[medium.UAR]);
+   } catch {
+     src = null;
+   }
+ } else {
+   src = medium[$platform_config_store["Title of column used for url"]];
+ }
+
+ /* We check if we have some kind of photo or a video*/
+ const isPhoto = src.match(/.jpg|.png|.jpeg/i) || false;
 </script>
 
+<svelte:fragment>
 {#if src.includes("mp4") || src.includes("mov")}
   <div class="medium_video" id={medium.id}>
     <video controls muted {src} type="video/mp4" />
@@ -27,15 +30,17 @@
     <img {src} />
   </div>
 {/if}
+<MediaForm {medium}></MediaForm>
+</svelte:fragment>
 
 <style>
-  .medium  {
-    display: flex;
-    width: auto;
-    height: 40vh;
-    margin: 0 auto;
-    overflow: hidden; /* Add this */
-  }
+ .medium  {
+   display: flex;
+   width: auto;
+   height: 40vh;
+   margin: 0 auto;
+   overflow: hidden; /* Add this */
+ }
 
  .medium > * {
    width: auto;
@@ -43,3 +48,4 @@
    object-fit: contain;
  }
 </style>
+
