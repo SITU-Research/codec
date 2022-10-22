@@ -1,79 +1,109 @@
-<script>
-  import { fly } from "svelte/transition";
-  import { ui_store } from "../../stores/store";
+<script lang="ts">
   export let medium;
+  let expanded = false
 </script>
 
-{#if $ui_store.open_form.includes(medium.UAR)}
-  <div
-    id="media-form"
-    class="noselect"
-    in:fly={{ x: 200, duration: 100 }}
-    out:fly={{ x: 200, duration: 100 }}
-  >
-    <div class="module_topbar">
-      <div class="module_title text_level1">Options</div>
+<div class={`media-form-container ${expanded?"expanded":""}`}>
+    <div class="module_topbar" on:click={() => {expanded = !!!expanded}}>
+      <div class="module_title text_level1"><div class="arrow">«</div>Options</div>
     </div>
     <div class="media-form-content">
       <form>
         {#each Object.entries(medium.contentAnalysis) as [contentTitle, value]}
           <div class="media-form-item">
-            <label class="label_text" for={contentTitle}>{contentTitle}</label>
             {#if typeof value == "boolean"}
-              <input name={contentTitle} type="checkbox" checked={value}/>
-            {:else if !isNaN(value)}
-              <input name={contentTitle} type="number" value={value}/>
+                <input name={contentTitle} type="checkbox" checked={value}/>
+                <label class="label_text" for={contentTitle}>{contentTitle}</label>
+            {:else if typeof(value) == "number"}
+                <label class="label_text" for={contentTitle}>{contentTitle}</label>
+                <input name={contentTitle} type="number" value={value}/>
             {:else}
-              <textarea name={contentTitle} placeholder="Content Description" value={value}/>
+                <h3 class="label_text" for={contentTitle}>{contentTitle}</h3>
+                <textarea name={contentTitle} rows=3 placeholder="describe what you see in the image in a short sentence" value={value}/>
             {/if}
+
           </div>
         {/each}
         <button type="submit">Submit changes</button>
       </form>
+      <slot></slot>
     </div>
-  </div>
-{/if}
+</div>
 
 <style>
-  #media-form {
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    width: 50%;
-    overflow-y: scroll;
-    margin: 10px;
-    border-radius: 7px;
-  }
+ .media-form-container {
+   display: flex;
+   flex-direction: column;
+   background-color: white;
+   direction: rtl; /* ladies and gents: DA HACK */
+   width: 20px;
 
-  .module_topbar {
-    display: flex;
-    margin: 5px;
-    justify-content: center;
-  }
+   overflow: visible;
+   margin: 10px;
+   border-radius: 7px;
+   transition: all 200ms;
+ }
+ .media-form-container.expanded {
+     width: 20%;
+ }
+ .media-form-content {
+     width: 100%;
+     display:flex;
+     direction: ltr;
+     flex-direction: column;
+     opacity: 0;
+ }
+ .expanded .media-form-content {
+     opacity: 1;
+ }
+ .module_topbar {
+     display: flex;
+     margin: 5px;
+     justify-content: flex-start;
+ }
+ .module_topbar .module_title {
+     display: flex;
+     font-size: 16px;
+     transform: translateX(30px) translateY(25px) rotate(90deg);
+     transition: all 200ms;
+ }
 
-  .module_title {
-    font-size: 16px;
-  }
+ .expanded .module_topbar .module_title {
+   transform: rotate(0deg);
+ }
 
-  .media-form-item {
-    padding: 5px;
-    }
+ .arrow {
+     position: relative;
+     float: right;
+     transform: rotate(-90deg);
+ }
+ .expanded .arrow {
+     transform: rotate(-180deg);
+ }
 
-  label {
-    padding: 5px;
-    padding-left: 20px;
-  }
+ .media-form-item {
+     padding: 5px;
+ }
 
-  textarea {
-    margin-left: 20px;
-    height: 50px;
-    border: 1px solid;
-  }
+ label {
+     padding: 5px;
+     padding-left: 20px;
+ }
 
-  button {
-    border: 1px solid;
-    border-radius: 7px;
-    float: right;
-    margin: 10px;
-  }
+ textarea {
+     margin-left: 20px;
+     height: 50px;
+     border: 1px solid;
+ }
+
+ textarea::placeholder {
+     color: lightgray;
+ }
+
+ button {
+     border: 1px solid;
+     border-radius: 7px;
+     float: right;
+     margin: 10px;
+ }
 </style>

@@ -10,8 +10,7 @@ export const ui_store = writable({
     modules_in_view: ['timeline','map', 'media'],
     media_in_view: [],
     media_hovered: [],
-    filter_in_view: false,
-    open_form: []
+    filter_in_view: false
 })
 
 export const filter_toggles = writable({

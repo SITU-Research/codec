@@ -19,19 +19,15 @@
  const isPhoto = src.match(/.jpg|.png|.jpeg/i) || false;
 </script>
 
-<svelte:fragment>
-{#if src.includes("mp4") || src.includes("mov")}
-  <div class="medium_video" id={medium.id}>
+<div class="medium" id={medium.id}>
+  {#if src.includes("mp4") || src.includes("mov")}
     <video controls muted {src} type="video/mp4" />
-  </div>
-{:else if src.includes("png") || src.includes("jpeg") || src.includes("jpg")}
-  <div class="medium_image" id={medium.id}>
+  {:else if src.includes("png") || src.includes("jpeg") || src.includes("jpg")}
     <!-- svelte-ignore a11y-missing-attribute -->
     <img {src} />
-  </div>
-{/if}
-<MediaForm {medium}></MediaForm>
-</svelte:fragment>
+  {/if}
+  <MediaForm {medium}></MediaForm>
+</div>
 
 <style>
  .medium  {
