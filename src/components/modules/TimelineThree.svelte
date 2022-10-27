@@ -14,7 +14,7 @@
 
   // parameters
   let time_scale_factor = 0.00001;
-  let scroll_percent_in = 15; // what percentage to cut off/add left + right when zooming in/out
+  const varToString = (varObj) => Object.keys(varObj)[0];
 
   let videos, // videos coming in from store (currently set to filtered videos)
     videos_w_chrono, // array of video with chronolocation information
@@ -49,6 +49,9 @@
   const dummy = new THREE.Object3D();
   let mouse = new THREE.Vector2(1, 1);
   const raycaster = new THREE.Raycaster();
+
+  // debugging variables
+  let log_at_first = true;
 
   onMount(() => {
     initial_setup_done = false;
@@ -105,7 +108,7 @@
     };
 
     x2time = (x) => {
-      return (x + timeBegin) * time_scale_factor;
+      return x / time_scale_factor + timeBegin;
     };
   }
 
@@ -216,11 +219,32 @@
           }
 
           dummy.position.set(
-            (video.times[0].starting_time - timeBegin) * time_scale_factor +
+            time2x(video.times[0].starting_time) +
               0.5 * duration * time_scale_factor,
             y_position,
             0
           );
+
+          if (i < 10 && log_at_first) {
+            console.log("   ");
+            console.log("------");
+            console.log(
+              video.UAR,
+              video[
+                $platform_config_store[
+                  "Title of column used for chronolocation"
+                ]
+              ]
+            );
+            console.log("time  begin: ", timeBegin);
+            console.log("video begin: ", video.times[0].starting_time);
+            console.log("video x:     ", time2x(video.times[0].starting_time));
+            console.log(
+              "video x w l: ",
+              time2x(video.times[0].starting_time) +
+                0.5 * duration * time_scale_factor
+            );
+          }
 
           dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
 
@@ -242,7 +266,7 @@
       mesh.instanceMatrix.needsUpdate = true;
       mesh.instanceColor.needsUpdate = true;
     }
-
+    log_at_first = false;
     renderer.render(scene, camera);
   }
 
@@ -279,6 +303,7 @@
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
+    updateTimeMarker();
   };
 
   let identify_video = (event) => {
@@ -315,6 +340,51 @@
     camera.left -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.right += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.updateProjectionMatrix();
+    updateTimeMarker();
+  };
+
+  let updateTimeMarker = () => {
+    console.log(" ");
+    console.log("-----");
+    console.log(" ");
+    let time_begin = new Date(
+      $platform_config_store["Timeline begin datetime"]
+    );
+    console.log(
+      "timeBegin:",
+      time_begin.getTime(),
+      ">",
+      time_begin.toISOString()
+    );
+
+    let time_end = new Date($platform_config_store["Timeline end datetime"]);
+    console.log("timeEnd: ", time_end.getTime(), ">", time_end.toISOString());
+
+    let mapped_time = Math.floor(x2time(camera.position.x));
+    console.log("camera x :", camera.position.x);
+    console.log(
+      "x time: ",
+      mapped_time,
+      ">",
+      new Date(mapped_time).toISOString()
+    );
+    console.log(
+      "x - begin / begin: ",
+      (mapped_time - time_begin.getTime()) / time_begin.getTime()
+    );
+
+    console.log("left", camera.left);
+    console.log(
+      "adjusted left:",
+      camera.position.x - (camera.right - camera.left) / 2
+    );
+    let mapped_left = x2time(camera.left);
+    console.log(
+      "left time: ",
+      mapped_left,
+      ">",
+      new Date(mapped_time).toISOString()
+    );
   };
 </script>
 
@@ -338,5 +408,10 @@
   canvas {
     position: fixed;
     overflow: hidden;
+  }
+
+  #center_time_marker {
+    position: relative;
+    left: 50%;
   }
 </style>
