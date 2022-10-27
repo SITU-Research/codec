@@ -14,7 +14,6 @@
 
   // parameters
   let time_scale_factor = 0.00001;
-  const varToString = (varObj) => Object.keys(varObj)[0];
 
   let videos, // videos coming in from store (currently set to filtered videos)
     videos_w_chrono, // array of video with chronolocation information
@@ -51,29 +50,29 @@
   const raycaster = new THREE.Raycaster();
 
   // debugging variables
+  let debugging = false;
   let log_at_first = true;
+  let debug_canvas, debug_camera, debug_renderer, cameraHelper;
 
   onMount(() => {
     initial_setup_done = false;
-    init(el);
+    init(el, container);
     animate();
     ro.observe(container);
   });
 
   function init(el, container) {
-    camera = new THREE.OrthographicCamera(-100, 100, 6, -1, 1, 5);
+    // make camera
+    camera = new THREE.OrthographicCamera(-10, 10, 6, -1, 1, 5);
     camera.position.set(0, 0, 2);
     camera.lookAt(0, 0, 0);
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
+    // make videos container object
+    // geometry
     let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
-
-    white_material = new THREE.MeshBasicMaterial({
-      color: "white",
-    });
+    // material
+    white_material = new THREE.MeshBasicMaterial({ color: "white" });
     mesh = new THREE.InstancedMesh(geometry, white_material, count);
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
     let color = new THREE.Color();
@@ -81,8 +80,12 @@
       mesh.setColorAt(i, color.set(0xffffff));
     });
 
+    // make scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
     scene.add(mesh);
 
+    // make controls
     const controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
     controls.enableZoom = false;
@@ -91,8 +94,32 @@
     };
 
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
-
     renderer.setSize(container?.clientHeight, container?.clientWidth);
+
+    if (debugging) {
+      debug_camera = new THREE.OrthographicCamera(
+        -200,
+        200,
+        200,
+        -200,
+        -10000,
+        100000
+      );
+      debug_camera.position.set(-1000, 10, 10);
+      debug_camera.lookAt(10000, 0, 0);
+      debug_renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        canvas: debug_canvas,
+      });
+      debug_renderer.setSize(300, 300);
+
+      let debug_controls = new OrbitControls(debug_camera, debug_canvas);
+
+      cameraHelper = new THREE.CameraHelper(camera);
+      scene.add(cameraHelper);
+
+      scene.add(new THREE.GridHelper(1000000, 10000));
+    }
   }
 
   $: {
@@ -268,6 +295,12 @@
     }
     log_at_first = false;
     renderer.render(scene, camera);
+
+    if (debugging) {
+      camera.updateMatrix();
+      cameraHelper.update();
+      debug_renderer.render(scene, debug_camera);
+    }
   }
 
   function handleMouseMove(event) {
@@ -388,7 +421,7 @@
   };
 </script>
 
-<div bind:this={container} on:mousewheel={handleScroll} id="timeline_container">
+<div bind:this={container} id="timeline_container" on:mousewheel={handleScroll}>
   <canvas
     bind:this={el}
     on:mousemove={handleMouseMove_throttle}
@@ -396,6 +429,20 @@
     on:mouseup={handleMouseUp}
     on:mouseleave={handleMouseLeave}
   />
+  {#if debugging}
+    <canvas
+      id="debug_canvas"
+      bind:this={debug_canvas}
+      style="position: absolute;
+    top: 0;
+    right: 0;
+    height: 500px;
+    width: 500px;
+    z-index: 2;
+    opacity: 50%;
+    border: 1px solid white;"
+    />
+  {/if}
 </div>
 
 <style>
@@ -413,5 +460,16 @@
   #center_time_marker {
     position: relative;
     left: 50%;
+  }
+
+  #debug_canvas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 300px;
+    width: 300px;
+    z-index: 2;
+    opacity: 50%;
+    border: 1px solid white;
   }
 </style>
