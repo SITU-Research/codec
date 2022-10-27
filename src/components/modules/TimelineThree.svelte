@@ -312,8 +312,8 @@
 
   let handleScroll = (event) => {
     let horizontal_range = camera.left - camera.right;
-    camera.left += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
-    camera.right -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
+    camera.left -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
+    camera.right += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.updateProjectionMatrix();
   };
 </script>
