@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Module from "./Module.svelte";
   import Media from "./Media.svelte";
   import { ui_store } from "../../stores/store";

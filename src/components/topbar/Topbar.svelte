@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import FilterButton from "./FilterButton.svelte";
     import Finder from "./Finder.svelte";
     import ModuleTools from "./ModuleTools.svelte";

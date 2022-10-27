@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { missing_component } from "svelte/internal";
   import {
     media_store_filtered,

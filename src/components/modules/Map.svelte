@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Map, Marker, controls } from "@beyonk/svelte-mapbox";
   import { throttle } from "underscore";
   import { watchResize } from "svelte-watch-resize";

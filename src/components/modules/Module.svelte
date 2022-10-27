@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { ui_store } from "../../stores/store";
   import TimelineThree from "./TimelineThree.svelte";
   import Map from "./Map.svelte";
