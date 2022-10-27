@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { local_file_store, platform_config_store } from "../../stores/store";
   export let medium;
 

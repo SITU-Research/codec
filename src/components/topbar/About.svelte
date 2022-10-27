@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     let about_in_view = false;
 </script>
 

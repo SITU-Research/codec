@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { local_file_store } from "../stores/store";
 
     let input_container, media_input;

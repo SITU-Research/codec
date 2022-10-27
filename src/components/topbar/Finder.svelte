@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { ui_store, media_store } from "../../stores/store";
     let input;
     let input_focused = false;
