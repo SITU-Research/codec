@@ -54,7 +54,7 @@
   const raycaster = new THREE.Raycaster();
 
   // debugging variables
-  let debugging = true;
+  let debugging = false;
   let log_at_first = true;
   let debug_canvas, debug_camera, debug_renderer, cameraHelper;
 
