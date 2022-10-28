@@ -35,6 +35,10 @@
       renderer.setSize(canvasWidth, canvasHeight);
       camera.aspect = canvasWidth / canvasHeight;
       camera.updateProjectionMatrix();
+
+      debug_renderer.setSize(canvasWidth, canvasHeight);
+      debug_camera.aspect = canvasWidth / canvasHeight;
+      debug_camera.updateProjectionMatrix();
     }
   });
   let mouse_dragged = false;
@@ -50,7 +54,7 @@
   const raycaster = new THREE.Raycaster();
 
   // debugging variables
-  let debugging = false;
+  let debugging = true;
   let log_at_first = true;
   let debug_canvas, debug_camera, debug_renderer, cameraHelper;
 
@@ -65,7 +69,6 @@
     // make camera
     camera = new THREE.OrthographicCamera(-10, 10, 6, -1, 1, 5);
     camera.position.set(0, 0, 2);
-    camera.lookAt(0, 0, 0);
 
     // make videos container object
     // geometry
@@ -98,27 +101,30 @@
 
     if (debugging) {
       debug_camera = new THREE.OrthographicCamera(
-        -200,
-        200,
-        200,
-        -200,
-        -10000,
-        100000
+        -50,
+        50,
+        40,
+        -20,
+        -100000,
+        1000000
       );
-      debug_camera.position.set(-1000, 10, 10);
-      debug_camera.lookAt(10000, 0, 0);
+      debug_camera.position.set(0, 10, 20);
+      debug_camera.lookAt(40000, 0, 0);
       debug_renderer = new THREE.WebGLRenderer({
         antialias: true,
         canvas: debug_canvas,
       });
-      debug_renderer.setSize(300, 300);
+      debug_renderer.setSize(
+        container?.clientHeight,
+        container?.clientWidth / 2.0
+      );
 
-      let debug_controls = new OrbitControls(debug_camera, debug_canvas);
+      // let debug_controls = new OrbitControls(debug_camera, debug_canvas);
 
       cameraHelper = new THREE.CameraHelper(camera);
       scene.add(cameraHelper);
 
-      scene.add(new THREE.GridHelper(1000000, 10000));
+      // scene.add(new THREE.GridHelper(1000000, 100));
     }
   }
 
@@ -407,16 +413,21 @@
     );
 
     console.log("left", camera.left);
-    console.log(
-      "adjusted left:",
-      camera.position.x - (camera.right - camera.left) / 2
-    );
     let mapped_left = x2time(camera.left);
     console.log(
       "left time: ",
       mapped_left,
       ">",
-      new Date(mapped_time).toISOString()
+      new Date(mapped_left).toISOString()
+    );
+
+    console.log("adjusted left:", camera.left - camera.position.x);
+    let mapped_adj_left = x2time(camera.left - camera.position.x);
+    console.log(
+      "adj left time: ",
+      mapped_adj_left,
+      ">",
+      new Date(mapped_adj_left).toISOString()
     );
   };
 </script>
@@ -433,14 +444,11 @@
     <canvas
       id="debug_canvas"
       bind:this={debug_canvas}
-      style="position: absolute;
-    top: 0;
-    right: 0;
-    height: 500px;
-    width: 500px;
-    z-index: 2;
+      style="position: fixed;
+      overflow: hidden;
+      z-index: 2;
     opacity: 50%;
-    border: 1px solid white;"
+    pointer-events: none;"
     />
   {/if}
 </div>
@@ -460,16 +468,5 @@
   #center_time_marker {
     position: relative;
     left: 50%;
-  }
-
-  #debug_canvas {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 300px;
-    width: 300px;
-    z-index: 2;
-    opacity: 50%;
-    border: 1px solid white;
   }
 </style>
