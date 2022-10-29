@@ -14,6 +14,8 @@
     platform_config_store,
   } from "./stores/store";
 
+  import { debounce } from "./utils/debounce";
+
   // parameters
   const fetch_interval_ms = 30000;
 
@@ -24,8 +26,6 @@
     mouse_xy.y = event.clientY;
   }, 5);
 
-  const CONTENT_ANALYSIS_FIRST_COLUMN = 12;
-
   let width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
   let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
 
@@ -34,14 +34,32 @@
     height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
   }, 500);
 
+  // debounced function to update gdocs
+
+  const updateGdocs = debounce((value) => {
+    const valueToPost = value;
+    valueToPost["column_names"] = $platform_config_store["Media column names"];
+    fetch("/.netlify/functions/googlesheets?request=updateSheet", {
+      method: "POST",
+      body: JSON.stringify(valueToPost),
+    })
+      .then((res) => res.json())
+      .then((res) => console.log("succeded in posting new state"));
+  });
+
   onMount(() => {
-    let fetch_interval = setInterval(
-      fetch_google_sheet_data,
-      fetch_interval_ms
-    );
-    return () => {
-      clearInterval(fetch_interval);
-    };
+    fetch_google_sheet_data();
+
+    media_store.subscribe((value) => {
+      updateGdocs(value);
+    });
+    // let fetch_interval = setInterval(
+    //   fetch_google_sheet_data,
+    //   fetch_interval_ms
+    // );
+    // return () => {
+    //   clearInterval(fetch_interval);
+    // };
   });
 
   function fetch_google_sheet_data() {
@@ -169,15 +187,13 @@
   function process_video_sheet_response(rows) {
     // first row of table is column names
     let column_names = rows[0];
+    // add column names as array to keep the indexes and names, we will use them to updateBatch values
+    $platform_config_store["Media column names"] = column_names;
 
-    /* 
-      TODO: 
-      -design the column index using platform config
-      -Define pros and cons
-    */
     // separate rows related to content analysis
     let content_analysis_columns = column_names.filter(
-      (elem, index) => index >= CONTENT_ANALYSIS_FIRST_COLUMN
+      (elem, index) =>
+        index >= $platform_config_store["Content analysis first column"]
     );
 
     // create array to feed data as being processed
@@ -196,7 +212,6 @@
 
           // assign to contentAnalysis
           if (content_analysis_columns.includes(column_names[i])) {
-            // transform spaces into _ (we)
             video.contentAnalysis[column_names[i]] =
               col_value == "TRUE" || col_value == "FALSE"
                 ? col_value == "TRUE"
@@ -347,4 +362,3 @@
     </div>
   {/await}
 </main>
-

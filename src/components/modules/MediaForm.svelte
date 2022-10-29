@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { media_store } from '../../stores/store';
   export let medium;
-  let expanded = false
+  let expanded = false;
+
 </script>
 
 <div class={`media-form-container ${expanded?"expanded":""}`}>
@@ -9,22 +11,21 @@
     </div>
     <div class="media-form-content">
       <form>
-        {#each Object.entries(medium.contentAnalysis) as [contentTitle, value]}
+        {#each Object.keys(medium.contentAnalysis) as contentTitle}
           <div class="media-form-item">
-            {#if typeof value == "boolean"}
-                <input name={contentTitle} type="checkbox" checked={value}/>
+            {#if typeof $media_store[medium.UAR][contentTitle] == "boolean"}
+                <input name={contentTitle} type="checkbox" bind:checked={$media_store[medium.UAR][contentTitle]}/>
                 <label class="label_text" for={contentTitle}>{contentTitle}</label>
-            {:else if typeof(value) == "number"}
+            {:else if typeof $media_store[medium.UAR][contentTitle] == "number"}
                 <label class="label_text" for={contentTitle}>{contentTitle}</label>
-                <input name={contentTitle} type="number" value={value}/>
+                <input name={contentTitle} type="number" bind:value={$media_store[medium.UAR][contentTitle]}/>
             {:else}
                 <h3 class="label_text" for={contentTitle}>{contentTitle}</h3>
-                <textarea name={contentTitle} rows=3 placeholder="describe what you see in the image in a short sentence" value={value}/>
+                <textarea name={contentTitle} rows=3 placeholder="describe what you see in the image in a short sentence" bind:value={$media_store[medium.UAR][contentTitle]}/>
             {/if}
 
           </div>
         {/each}
-        <button type="submit">Submit changes</button>
       </form>
       <slot></slot>
     </div>

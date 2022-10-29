@@ -1,4 +1,5 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { postUpdate } = require('./utilFunctions');
 
 exports.handler = async (event, context, callback) => {
     try {
@@ -26,11 +27,16 @@ exports.handler = async (event, context, callback) => {
             let platform_config = {}
             platform_config_rows.forEach((platform_config_row) => {
                 platform_config[platform_config_row._rawData[0]] = platform_config_row._rawData[1]
-            })
+            });
+            // adding content analysis first column constant to this store to keep a single source of truth:
+            platform_config["Content analysis first column"] = 12;
             return {
                 statusCode: 200,
                 body: JSON.stringify(platform_config),
             }
+
+        } else if (request === 'updateSheet' && event.httpMethod === 'POST') {
+            return await postUpdate(event, doc, sheet_ids_by_title);
         } else if (request.includes('size')) {
             let requested_sheet = request.slice(5)
             const list_sheet_index = sheet_ids_by_title[requested_sheet]
