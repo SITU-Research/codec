@@ -27,6 +27,7 @@
     video_y_position = []; // array containing, for every video, their vertical position
 
   let el, container;
+  let current_time_text;
   var ro = new ResizeObserver((entries) => {
     for (let entry of entries) {
       const cr = entry.contentRect;
@@ -96,6 +97,7 @@
       LEFT: THREE.MOUSE.PAN,
     };
 
+    // add center line marker
     const line_material = new THREE.LineBasicMaterial({ color: 0xff0000 });
     const points = [
       new THREE.Vector3(0, 10000, 0),
@@ -107,6 +109,7 @@
     camera.add(center_time_marker);
     scene.add(camera);
 
+    // add renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
     renderer.setSize(container?.clientHeight, container?.clientWidth);
 
@@ -283,27 +286,6 @@
             0
           );
 
-          if (i < 10 && log_at_first) {
-            console.log("   ");
-            console.log("------");
-            console.log(
-              video.UAR,
-              video[
-                $platform_config_store[
-                  "Title of column used for chronolocation"
-                ]
-              ]
-            );
-            console.log("time  begin: ", timeBegin);
-            console.log("video begin: ", video.times[0].starting_time);
-            console.log("video x:     ", time2x(video.times[0].starting_time));
-            console.log(
-              "video x w l: ",
-              time2x(video.times[0].starting_time) +
-                0.5 * duration * time_scale_factor
-            );
-          }
-
           dummy.scale.set(duration * time_scale_factor - 0.2, 0.95, 1);
 
           dummy.updateMatrix();
@@ -324,7 +306,6 @@
       mesh.instanceMatrix.needsUpdate = true;
       mesh.instanceColor.needsUpdate = true;
     }
-    log_at_first = false;
     renderer.render(scene, camera);
 
     if (debugging) {
@@ -367,7 +348,7 @@
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
-    // updateTimeMarker();
+    updateTimeMarker();
   };
 
   let identify_video = (event) => {
@@ -404,56 +385,12 @@
     camera.left -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.right += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.updateProjectionMatrix();
-    // updateTimeMarker();
+    updateTimeMarker();
   };
 
   let updateTimeMarker = () => {
-    console.log(" ");
-    console.log("-----");
-    console.log(" ");
-    let time_begin = new Date(
-      $platform_config_store["Timeline begin datetime"]
-    );
-    console.log(
-      "timeBegin:",
-      time_begin.getTime(),
-      ">",
-      time_begin.toISOString()
-    );
-
-    let time_end = new Date($platform_config_store["Timeline end datetime"]);
-    console.log("timeEnd: ", time_end.getTime(), ">", time_end.toISOString());
-
     let mapped_time = Math.floor(x2time(camera.position.x));
-    console.log("camera x :", camera.position.x);
-    console.log(
-      "x time: ",
-      mapped_time,
-      ">",
-      new Date(mapped_time).toISOString()
-    );
-    console.log(
-      "x - begin / begin: ",
-      (mapped_time - time_begin.getTime()) / time_begin.getTime()
-    );
-
-    console.log("left", camera.left);
-    let mapped_left = x2time(camera.left);
-    console.log(
-      "left time: ",
-      mapped_left,
-      ">",
-      new Date(mapped_left).toISOString()
-    );
-
-    console.log("adjusted left:", camera.left - camera.position.x);
-    let mapped_adj_left = x2time(camera.left - camera.position.x);
-    console.log(
-      "adj left time: ",
-      mapped_adj_left,
-      ">",
-      new Date(mapped_adj_left).toISOString()
-    );
+    current_time_text = new Date(mapped_time).toISOString();
   };
 </script>
 
@@ -476,6 +413,7 @@
     pointer-events: none;"
     />
   {/if}
+  <div id="current_time_text" class="text_level1">{current_time_text}</div>
 </div>
 
 <style>
@@ -488,5 +426,11 @@
   canvas {
     position: fixed;
     overflow: hidden;
+  }
+
+  #current_time_text {
+    position: fixed;
+    z-index: 2;
+    left: 50%;
   }
 </style>
