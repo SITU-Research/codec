@@ -45,7 +45,7 @@
   let mouse_dragged_timeout;
   let initial_setup_done;
 
-  let camera, scene, renderer, canvasWidth, canvasHeight;
+  let camera, scene, renderer, controls, canvasWidth, canvasHeight;
   let mesh, white_material;
   const amount = 50;
   const count = Math.pow(amount, 3);
@@ -89,12 +89,23 @@
     scene.add(mesh);
 
     // make controls
-    const controls = new OrbitControls(camera, el);
+    controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
     controls.enableZoom = false;
     controls.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
     };
+
+    const line_material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+    const points = [
+      new THREE.Vector3(0, 10000, 0),
+      new THREE.Vector3(0, -10000, 0),
+    ];
+    const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const center_time_marker = new THREE.Line(line_geometry, line_material);
+    center_time_marker.position.z = -1.5;
+    camera.add(center_time_marker);
+    scene.add(camera);
 
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
     renderer.setSize(container?.clientHeight, container?.clientWidth);
@@ -211,17 +222,31 @@
 
   $: {
     if (camera && !initial_setup_done) {
-      camera.left = time2x(timeBegin);
-      camera.right = time2x(timeEnd);
+      let left, right, top, bottom;
 
+      left = time2x(timeBegin);
+      right = time2x(timeEnd);
+
+      camera.position.x = left / 2 + right / 2;
+      camera.right = (right - left) / 2;
+      camera.left = -camera.right;
       if (!orderedByTime) {
-        camera.top = Math.max(...Object.values(orderedOtherIndex)) + 1;
-        camera.bottom = Math.min(...Object.values(orderedOtherIndex)) - 1;
+        top = Math.max(...Object.values(orderedOtherIndex)) + 1;
+        bottom = Math.min(...Object.values(orderedOtherIndex)) - 1;
       } else {
-        camera.top = free_time_at_row.length - 0.5;
-        camera.bottom = -0.5;
+        top = free_time_at_row.length - 0.5;
+        bottom = -0.5;
       }
+      camera.position.y = top / 2 + bottom / 2;
+      camera.top = (top - bottom) / 2;
+      camera.bottom = -camera.top;
       camera.updateProjectionMatrix();
+      controls.target = new THREE.Vector3(
+        camera.position.x,
+        camera.position.y,
+        camera.position.z - 5
+      );
+      controls.update();
       if (videos.length > 0) initial_setup_done = true;
     }
   }
@@ -342,7 +367,7 @@
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
-    updateTimeMarker();
+    // updateTimeMarker();
   };
 
   let identify_video = (event) => {
@@ -379,7 +404,7 @@
     camera.left -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.right += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.updateProjectionMatrix();
-    updateTimeMarker();
+    // updateTimeMarker();
   };
 
   let updateTimeMarker = () => {
@@ -463,10 +488,5 @@
   canvas {
     position: fixed;
     overflow: hidden;
-  }
-
-  #center_time_marker {
-    position: relative;
-    left: 50%;
   }
 </style>
