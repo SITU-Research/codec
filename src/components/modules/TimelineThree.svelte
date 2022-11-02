@@ -46,7 +46,14 @@
   let mouse_dragged_timeout;
   let initial_setup_done;
 
-  let camera, scene, renderer, controls, canvasWidth, canvasHeight;
+  let camera,
+    scene,
+    renderer,
+    controls,
+    canvasWidth,
+    canvasHeight,
+    periodic_time_markers,
+    line_material;
   let mesh, white_material;
   const amount = 50;
   const count = Math.pow(amount, 3);
@@ -97,17 +104,26 @@
       LEFT: THREE.MOUSE.PAN,
     };
 
-    // add center line marker
-    const line_material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+    // add time markers
+    const center_line_material = new THREE.LineBasicMaterial({
+      color: 0xff0000,
+    });
     const points = [
       new THREE.Vector3(0, 10000, 0),
       new THREE.Vector3(0, -10000, 0),
     ];
     const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const center_time_marker = new THREE.Line(line_geometry, line_material);
+    const center_time_marker = new THREE.Line(
+      line_geometry,
+      center_line_material
+    );
     center_time_marker.position.z = -1.5;
     camera.add(center_time_marker);
     scene.add(camera);
+    periodic_time_markers = new THREE.Group();
+    line_material = new THREE.LineBasicMaterial({ color: 0x41484e });
+
+    scene.add(periodic_time_markers);
 
     // add renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
@@ -179,7 +195,6 @@
     ) {
       orderedByTime = true;
 
-      //
       free_time_at_row = [];
 
       videos_w_chrono.forEach((video, v) => {
@@ -250,6 +265,7 @@
         camera.position.z - 5
       );
       controls.update();
+      updateTimeMarkers();
       if (videos.length > 0) initial_setup_done = true;
     }
   }
@@ -348,7 +364,7 @@
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
-    updateTimeMarker();
+    updateTimeMarkers();
   };
 
   let identify_video = (event) => {
@@ -385,12 +401,90 @@
     camera.left -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.right += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.updateProjectionMatrix();
-    updateTimeMarker();
+    updateTimeMarkers();
   };
 
-  let updateTimeMarker = () => {
+  let updateTimeMarkers = () => {
     let mapped_time = Math.floor(x2time(camera.position.x));
     current_time_text = new Date(mapped_time).toISOString();
+    update_periodic_time_markers();
+  };
+
+  let update_periodic_time_markers = () => {
+    // check that creation logic is correctly deleting
+    // can we create less often
+    // change to array logic instead of manually specifying each step
+
+    let mapped_left = x2time(camera.position.x + camera.left);
+    let mapped_buffered_left = x2time(camera.position.x + 4 * camera.left);
+    let mapped_right = x2time(camera.position.x + camera.right);
+    let mapped_buffered_right = x2time(camera.position.x + 4 * camera.right);
+
+    let temporal_range = mapped_right - mapped_left;
+    let creation_time = mapped_buffered_left;
+
+    const one_minute_in_ms = 1000 * 60;
+    const one_hour_in_ms = one_minute_in_ms * 60;
+    const one_day_in_ms = one_hour_in_ms * 24;
+    const one_week_in_ms = one_day_in_ms * 7;
+    // percentage of a temporal step (e.g. day) that temporal range needs
+    // to be greater than, before that temporal step is drawn
+    const range2step_threshold = 1.3;
+    // delete all marker lines
+    for (var i = periodic_time_markers.children.length - 1; i >= 0; i--) {
+      let obj = periodic_time_markers.children[i];
+      periodic_time_markers.remove(obj);
+    }
+
+    if (temporal_range > range2step_threshold * one_week_in_ms) {
+      create_array_time_marker_line(
+        creation_time,
+        mapped_buffered_right,
+        one_week_in_ms
+      );
+    } else if (temporal_range > range2step_threshold * one_day_in_ms) {
+      create_array_time_marker_line(
+        creation_time,
+        mapped_buffered_right,
+        one_day_in_ms
+      );
+    } else if (temporal_range > range2step_threshold * one_hour_in_ms) {
+      create_array_time_marker_line(
+        creation_time,
+        mapped_buffered_right,
+        one_hour_in_ms
+      );
+    } else if (temporal_range > range2step_threshold * one_minute_in_ms) {
+      create_array_time_marker_line(
+        creation_time,
+        mapped_buffered_right,
+        one_minute_in_ms
+      );
+    }
+  };
+
+  const create_array_time_marker_line = (
+    creation_time,
+    mapped_buffered_right,
+    temporal_step
+  ) => {
+    creation_time = creation_time - (creation_time % temporal_step);
+    while (creation_time < mapped_buffered_right) {
+      create_time_marker_line(creation_time);
+      creation_time += temporal_step;
+    }
+  };
+
+  const create_time_marker_line = (time) => {
+    const points = [
+      new THREE.Vector3(0, 10000, 0),
+      new THREE.Vector3(0, -10000, 0),
+    ];
+    const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const time_marker_line = new THREE.Line(line_geometry, line_material);
+    time_marker_line.position.x = time2x(time);
+    time_marker_line.userData.time_text = new Date(time).toISOString();
+    periodic_time_markers.add(time_marker_line);
   };
 </script>
 
@@ -429,8 +523,10 @@
   }
 
   #current_time_text {
-    position: fixed;
+    position: relative;
     z-index: 2;
-    left: 50%;
+    left: calc(50% + 5px);
+    background-color: black;
+    width: fit-content;
   }
 </style>
