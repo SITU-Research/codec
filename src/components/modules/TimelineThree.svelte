@@ -614,9 +614,6 @@
           }}>{period.title}</button
         >
       {/each}
-      <button class="box text_level2 noselect"
-        >FILTER MAP BY TIMELINE EXTENTS</button
-      >
     </div>
   {/if}
   <canvas
