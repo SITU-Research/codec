@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { ui_store } from "../../stores/store";
 
     function toggle_module(module) {

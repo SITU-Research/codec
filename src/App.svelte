@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import { throttle } from "underscore";
   import LocalMediaInput from "./components/LocalMediaInput.svelte";

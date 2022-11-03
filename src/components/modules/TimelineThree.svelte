@@ -1,5 +1,5 @@
-<script>
-  import { onMount } from "svelte";
+<script lang="ts">
+  import { onDestroy, onMount } from "svelte";
   import { throttle } from "underscore";
 
   import * as THREE from "three";
@@ -14,7 +14,24 @@
 
   // parameters
   let time_scale_factor = 0.00001;
-  let scroll_percent_in = 15; // what percentage to cut off/add left + right when zooming in/out
+  const one_second_in_ms = 1000;
+  const fifteen_seconds_in_ms = 1000 * 15;
+  const one_minute_in_ms = one_second_in_ms * 60;
+  const fifteen_minutes_in_ms = one_minute_in_ms * 15;
+  const one_hour_in_ms = one_minute_in_ms * 60;
+  const six_hours_in_ms = one_hour_in_ms * 6;
+  const one_day_in_ms = one_hour_in_ms * 24;
+  const one_week_in_ms = one_day_in_ms * 7;
+  const temporal_steps = [
+    one_week_in_ms,
+    one_day_in_ms,
+    six_hours_in_ms,
+    one_hour_in_ms,
+    fifteen_minutes_in_ms,
+    one_minute_in_ms,
+    fifteen_seconds_in_ms,
+    one_second_in_ms,
+  ];
 
   let videos, // videos coming in from store (currently set to filtered videos)
     videos_w_chrono, // array of video with chronolocation information
@@ -27,7 +44,32 @@
     free_time_at_row = [], // array containing, for every vertical row, when the latest video on that row ends
     video_y_position = []; // array containing, for every video, their vertical position
 
-  let el, container;
+  let el, container, time_markers_text_el;
+  let current_time_text;
+
+  let mouse_dragged = false;
+  let mouse_dragged_timeout;
+  let initial_setup_done;
+
+  let camera,
+    scene,
+    renderer,
+    controls,
+    canvasWidth,
+    canvasHeight,
+    periodic_time_markers,
+    line_material;
+  let mesh, white_material;
+  const amount = 50;
+  const count = Math.pow(amount, 3);
+  const dummy = new THREE.Object3D();
+  let mouse = new THREE.Vector2(1, 1);
+  const raycaster = new THREE.Raycaster();
+
+  // debugging variables
+  let debugging = false;
+  let debug_canvas, debug_camera, debug_renderer, cameraHelper;
+
   var ro = new ResizeObserver((entries) => {
     for (let entry of entries) {
       const cr = entry.contentRect;
@@ -36,41 +78,60 @@
       renderer.setSize(canvasWidth, canvasHeight);
       camera.aspect = canvasWidth / canvasHeight;
       camera.updateProjectionMatrix();
+
+      if (debugging) {
+        debug_renderer.setSize(canvasWidth, canvasHeight);
+        debug_camera.aspect = canvasWidth / canvasHeight;
+        debug_camera.updateProjectionMatrix();
+      }
     }
   });
-  let mouse_dragged = false;
-  let mouse_dragged_timeout;
-  let initial_setup_done;
-
-  let camera, scene, renderer, canvasWidth, canvasHeight;
-  let mesh, white_material;
-  const amount = 50;
-  const count = Math.pow(amount, 3);
-  const dummy = new THREE.Object3D();
-  let mouse = new THREE.Vector2(1, 1);
-  const raycaster = new THREE.Raycaster();
-
   onMount(() => {
     initial_setup_done = false;
-    init(el);
+    init(el, container);
     animate();
     ro.observe(container);
   });
 
+  const cleanMaterial = (material) => {
+    material.dispose();
+    // dispose textures
+    for (const key of Object.keys(material)) {
+      const value = material[key];
+      if (value && typeof value === "object" && "minFilter" in value) {
+        value.dispose();
+      }
+    }
+  };
+
+  onDestroy(() => {
+    renderer.dispose();
+
+    scene.traverse((object) => {
+      if (!object.isMesh) return;
+
+      object.geometry.dispose();
+
+      if (object.material.isMaterial) {
+        cleanMaterial(object.material);
+      } else {
+        // an array of materials
+        for (const material of object.material) cleanMaterial(material);
+      }
+    });
+  });
+
   function init(el, container) {
-    camera = new THREE.OrthographicCamera(-100, 100, 6, -1, 1, 5);
+    // make camera
+    camera = new THREE.OrthographicCamera(-10, 10, 6, -1, 1, 5);
     camera.position.set(0, 0, 2);
-    camera.lookAt(0, 0, 0);
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
+    // make videos container object
+    // geometry
     let geometry = new THREE.BoxGeometry();
     geometry.computeVertexNormals();
-
-    white_material = new THREE.MeshBasicMaterial({
-      color: "white",
-    });
+    // material
+    white_material = new THREE.MeshBasicMaterial({ color: "white" });
     mesh = new THREE.InstancedMesh(geometry, white_material, count);
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
     let color = new THREE.Color();
@@ -78,20 +139,74 @@
       mesh.setColorAt(i, color.set(0xffffff));
     });
 
+    // make scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
     scene.add(mesh);
 
-    const controls = new OrbitControls(camera, el);
+    // make controls
+    controls = new OrbitControls(camera, el);
     controls.enableRotate = false;
     controls.enableZoom = false;
     controls.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
     };
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
+    // add time markers
+    const center_line_material = new THREE.LineBasicMaterial({
+      color: 0xff0000,
+    });
+    const points = [
+      new THREE.Vector3(0, 10000, 0),
+      new THREE.Vector3(0, -10000, 0),
+    ];
+    const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const center_time_marker = new THREE.Line(
+      line_geometry,
+      center_line_material
+    );
+    center_time_marker.position.z = -1.5;
+    camera.add(center_time_marker);
+    scene.add(camera);
+    periodic_time_markers = new THREE.Group();
+    line_material = new THREE.LineBasicMaterial({ color: 0x41484e });
 
+    scene.add(periodic_time_markers);
+
+    // add renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el });
     renderer.setSize(container?.clientHeight, container?.clientWidth);
+
+    if (debugging) {
+      debug_camera = new THREE.OrthographicCamera(
+        -50,
+        50,
+        40,
+        -20,
+        -100000,
+        1000000
+      );
+      debug_camera.position.set(0, 10, 20);
+      debug_camera.lookAt(40000, 0, 0);
+      debug_renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        canvas: debug_canvas,
+      });
+      debug_renderer.setSize(
+        container?.clientHeight,
+        container?.clientWidth / 2.0
+      );
+
+      // let debug_controls = new OrbitControls(debug_camera, debug_canvas);
+
+      cameraHelper = new THREE.CameraHelper(camera);
+      scene.add(cameraHelper);
+
+      // scene.add(new THREE.GridHelper(1000000, 100));
+    }
   }
 
+  // intake timeline begin and end point
   $: {
     timeBegin = new Date(
       $platform_config_store["Timeline begin datetime"]
@@ -105,18 +220,19 @@
     };
 
     x2time = (x) => {
-      return (x + timeBegin) * time_scale_factor;
+      return x / time_scale_factor + timeBegin;
     };
   }
 
+  // intake temporal nav buttons
   $: temporal_nav_periods = $platform_config_store["Temporal nav periods"]
     .split("\n")
     .map((period_string) => {
       let [period_title, period_dates_string] = period_string.split("~");
       let [period_start_string, period_end_string] =
         period_dates_string.split(">");
-      let period_start = new Date(period_start_string).getTime();
-      let period_end = new Date(period_end_string).getTime();
+      let period_start = Date.parse(period_start_string + " GMT");
+      let period_end = Date.parse(period_end_string + " GMT");
       return {
         title: period_title,
         start: period_start,
@@ -124,6 +240,7 @@
       };
     });
 
+  // intake videos to timeline
   $: {
     videos = Object.values($media_store_filtered);
     videos_w_chrono = videos
@@ -144,7 +261,6 @@
     ) {
       orderedByTime = true;
 
-      //
       free_time_at_row = [];
 
       videos_w_chrono.forEach((video, v) => {
@@ -188,19 +304,35 @@
     }
   }
 
+  // adjust timeline camera when videos etc loaded
   $: {
     if (camera && !initial_setup_done) {
-      camera.left = time2x(timeBegin);
-      camera.right = time2x(timeEnd);
+      let left, right, top, bottom;
 
+      left = time2x(timeBegin);
+      right = time2x(timeEnd);
+
+      camera.position.x = left / 2 + right / 2;
+      camera.right = (right - left) / 2;
+      camera.left = -camera.right;
       if (!orderedByTime) {
-        camera.top = Math.max(...Object.values(orderedOtherIndex)) + 1;
-        camera.bottom = Math.min(...Object.values(orderedOtherIndex)) - 1;
+        top = Math.max(...Object.values(orderedOtherIndex)) + 1;
+        bottom = Math.min(...Object.values(orderedOtherIndex)) - 1;
       } else {
-        camera.top = free_time_at_row.length - 0.5;
-        camera.bottom = -0.5;
+        top = free_time_at_row.length - 0.5;
+        bottom = -0.5;
       }
+      camera.position.y = top / 2 + bottom / 2;
+      camera.top = (top - bottom) / 2;
+      camera.bottom = -camera.top;
       camera.updateProjectionMatrix();
+      controls.target = new THREE.Vector3(
+        camera.position.x,
+        camera.position.y,
+        camera.position.z - 5
+      );
+      controls.update();
+      updateTimeMarkers();
       if (videos.length > 0) initial_setup_done = true;
     }
   }
@@ -231,7 +363,7 @@
           }
 
           dummy.position.set(
-            (video.times[0].starting_time - timeBegin) * time_scale_factor +
+            time2x(video.times[0].starting_time) +
               0.5 * duration * time_scale_factor,
             y_position,
             0
@@ -257,8 +389,20 @@
       mesh.instanceMatrix.needsUpdate = true;
       mesh.instanceColor.needsUpdate = true;
     }
-
     renderer.render(scene, camera);
+
+    periodic_time_markers.children.forEach((marker) => {
+      const marker_pos = new THREE.Vector3(marker.position.x, 0, 0);
+      marker_pos.project(camera);
+      const x = (marker_pos.x * 0.5 + 0.5) * container?.clientWidth;
+      marker.userData.textEl.style.left = `${x}px`;
+    });
+
+    if (debugging) {
+      camera.updateMatrix();
+      cameraHelper.update();
+      debug_renderer.render(scene, debug_camera);
+    }
   }
 
   function handleMouseMove(event) {
@@ -294,6 +438,7 @@
       if (UAR) toggle_in_view(UAR);
     }
     mouse_dragged = false;
+    updateTimeMarkers();
   };
 
   let identify_video = (event) => {
@@ -326,44 +471,130 @@
   };
 
   let handleScroll = (event) => {
-    let mouse_vector = new THREE.Vector3();
-    mouse_vector.set(
-      (event.offsetX / canvasWidth) * 2 - 1,
-      -(event.offsetY / canvasHeight) * 2 + 1,
-      0
-    );
-    mouse_vector.unproject(camera); // -> giving wrong values where mouse outside camera left-right
-
-    // distance of mouse to left edge
-    let d_l = mouse_vector.x - camera.left;
-    // distance of mouse to right edge
-    let d_r = camera.right - mouse_vector.x;
-    // ratio of distance, ie 0 totally left <---> 1 totally right
-    let d_ratio = d_l / d_r;
-
-    camera.left +=
-      (mouse_vector.x - camera.left) *
-      scroll_percent_in *
-      0.01 *
-      Math.sign(event.wheelDelta);
-
-    let d_l_new = mouse_vector.x - camera.left;
-    let d_r_new = d_l_new / d_ratio;
-
-    camera.right = mouse_vector.x + d_r_new;
+    let horizontal_range = camera.left - camera.right;
+    camera.left -= horizontal_range * 0.1 * Math.sign(event.wheelDelta);
+    camera.right += horizontal_range * 0.1 * Math.sign(event.wheelDelta);
     camera.updateProjectionMatrix();
+    updateTimeMarkers();
+  };
+
+  let updateTimeMarkers = () => {
+    let mapped_time = Math.floor(x2time(camera.position.x));
+    current_time_text = new Date(mapped_time).toUTCString().slice();
+    current_time_text = current_time_text.slice(
+      0,
+      current_time_text.length - 4
+    );
+    update_periodic_time_markers();
+  };
+
+  let update_periodic_time_markers = () => {
+    let mapped_left = x2time(camera.position.x + camera.left);
+    let mapped_buffered_left = x2time(camera.position.x + 4 * camera.left);
+    let mapped_right = x2time(camera.position.x + camera.right);
+    let mapped_buffered_right = x2time(camera.position.x + 4 * camera.right);
+
+    let temporal_range = mapped_right - mapped_left;
+    let creation_time = mapped_buffered_left;
+
+    // percentage of a temporal step (e.g. day) that temporal range needs
+    // to be greater than, before that temporal step is drawn
+    // ie how many lines visible at higher temporal step before
+    // we switch to the lower temporal step (ie grid)
+    const range2step_threshold = 2;
+    // delete all marker lines
+    for (var i = periodic_time_markers.children.length - 1; i >= 0; i--) {
+      let time_marker = periodic_time_markers.children[i];
+      time_marker.userData.textEl.remove();
+      periodic_time_markers.remove(time_marker);
+    }
+
+    // some() stops computing when at least one element returns true
+    temporal_steps.some((step, i) => {
+      if (temporal_range > range2step_threshold * step) {
+        create_array_time_marker_line(
+          creation_time,
+          mapped_buffered_right,
+          step
+        );
+        return true;
+      } else {
+        return false;
+      }
+    });
+  };
+
+  const create_array_time_marker_line = (
+    creation_time,
+    mapped_buffered_right,
+    temporal_step
+  ) => {
+    creation_time = creation_time - (creation_time % temporal_step);
+    while (creation_time < mapped_buffered_right) {
+      create_time_marker_line(creation_time, temporal_step);
+      creation_time += temporal_step;
+    }
+  };
+
+  const create_time_marker_line = (time, temporal_step) => {
+    const points = [
+      new THREE.Vector3(0, 10000, 0),
+      new THREE.Vector3(0, -10000, 0),
+    ];
+    const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const time_marker_line = new THREE.Line(line_geometry, line_material);
+    time_marker_line.position.x = time2x(time);
+    time_marker_line.userData.time_text = new Date(time).toISOString();
+    periodic_time_markers.add(time_marker_line);
+
+    const elem = document.createElement("div");
+    switch (temporal_step) {
+      case one_week_in_ms:
+      case one_day_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(5, 10);
+        break;
+      case six_hours_in_ms:
+      case one_hour_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(11, 16);
+        break;
+      case fifteen_minutes_in_ms:
+      case one_minute_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(13, 16);
+        break;
+      case fifteen_seconds_in_ms:
+      case one_second_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(16, 19);
+        break;
+      default:
+        elem.textContent = new Date(time).toISOString();
+    }
+    elem.style.position = "absolute";
+    elem.classList.toggle("text_level1");
+    time_markers_text_el.appendChild(elem);
+    time_marker_line.userData.textEl = elem;
   };
 
   let handleOnTempNavClick = (period) => {
     console.log("-- on temp nav click --");
+    console.log(temporal_nav_periods);
     console.log("before");
     console.log(
       `camera position: ${camera.position.x},${camera.position.y},${camera.position.z}`
     );
     console.log(`camera left,right: ${camera.left}, ${camera.right}`);
-    let camera_x_new = time2x(period.end) / 2 - time2x(period.start) / 2;
-    camera.translateX(camera_x_new - camera.position.x);
+    console.log(period.start);
+    let camera_x_new = time2x(period.end) / 2 + time2x(period.start) / 2;
+    camera.position.x = camera_x_new;
+    camera.right = (time2x(period.end) - time2x(period.start)) / 2;
+    camera.left = -camera.right;
     camera.updateProjectionMatrix();
+    controls.target = new THREE.Vector3(
+      camera.position.x,
+      camera.position.y,
+      camera.position.z - 5
+    );
+    controls.update();
+    updateTimeMarkers();
     console.log("after");
     console.log(
       `camera position: ${camera.position.x},${camera.position.y},${camera.position.z}`
@@ -372,7 +603,7 @@
   };
 </script>
 
-<div bind:this={container} on:mousewheel={handleScroll} id="timeline_container">
+<div bind:this={container} id="timeline_container" on:mousewheel={handleScroll}>
   {#if temporal_nav_periods}
     <div id="temporal_nav">
       {#each temporal_nav_periods as period}
@@ -395,6 +626,19 @@
     on:mouseup={handleMouseUp}
     on:mouseleave={handleMouseLeave}
   />
+  {#if debugging}
+    <canvas
+      id="debug_canvas"
+      bind:this={debug_canvas}
+      style="position: fixed;
+      overflow: hidden;
+      z-index: 2;
+    opacity: 50%;
+    pointer-events: none;"
+    />
+  {/if}
+  <div bind:this={time_markers_text_el} id="time_markers_text" />
+  <div id="current_time_text" class="text_level1">{current_time_text}</div>
 </div>
 
 <style>
@@ -413,5 +657,17 @@
   canvas {
     position: fixed;
     overflow: hidden;
+  }
+
+  #current_time_text {
+    position: relative;
+    z-index: 2;
+    left: calc(50% + 5px);
+    background-color: black;
+    width: fit-content;
+  }
+
+  #time_markers_text {
+    position: relative;
   }
 </style>
