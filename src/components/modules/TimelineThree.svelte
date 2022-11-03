@@ -14,6 +14,20 @@
 
   // parameters
   let time_scale_factor = 0.00001;
+  const one_minute_in_ms = 1000 * 60;
+  const fifteen_minutes_in_ms = one_minute_in_ms * 15;
+  const one_hour_in_ms = one_minute_in_ms * 60;
+  const six_hours_in_ms = one_hour_in_ms * 6;
+  const one_day_in_ms = one_hour_in_ms * 24;
+  const one_week_in_ms = one_day_in_ms * 7;
+  const temporal_steps = [
+    one_week_in_ms,
+    one_day_in_ms,
+    six_hours_in_ms,
+    one_hour_in_ms,
+    fifteen_minutes_in_ms,
+    one_minute_in_ms,
+  ];
 
   let videos, // videos coming in from store (currently set to filtered videos)
     videos_w_chrono, // array of video with chronolocation information
@@ -26,7 +40,7 @@
     free_time_at_row = [], // array containing, for every vertical row, when the latest video on that row ends
     video_y_position = []; // array containing, for every video, their vertical position
 
-  let el, container;
+  let el, container, time_markers_text_el;
   let current_time_text;
   var ro = new ResizeObserver((entries) => {
     for (let entry of entries) {
@@ -324,6 +338,13 @@
     }
     renderer.render(scene, camera);
 
+    periodic_time_markers.children.forEach((marker) => {
+      const marker_pos = new THREE.Vector3(marker.position.x, 0, 0);
+      marker_pos.project(camera);
+      const x = (marker_pos.x * 0.5 + 0.5) * container?.clientWidth;
+      marker.userData.textEl.style.left = `${x}px`;
+    });
+
     if (debugging) {
       camera.updateMatrix();
       cameraHelper.update();
@@ -406,15 +427,15 @@
 
   let updateTimeMarkers = () => {
     let mapped_time = Math.floor(x2time(camera.position.x));
-    current_time_text = new Date(mapped_time).toISOString();
+    current_time_text = new Date(mapped_time).toUTCString().slice();
+    current_time_text = current_time_text.slice(
+      0,
+      current_time_text.length - 4
+    );
     update_periodic_time_markers();
   };
 
   let update_periodic_time_markers = () => {
-    // check that creation logic is correctly deleting
-    // can we create less often
-    // change to array logic instead of manually specifying each step
-
     let mapped_left = x2time(camera.position.x + camera.left);
     let mapped_buffered_left = x2time(camera.position.x + 4 * camera.left);
     let mapped_right = x2time(camera.position.x + camera.right);
@@ -423,44 +444,31 @@
     let temporal_range = mapped_right - mapped_left;
     let creation_time = mapped_buffered_left;
 
-    const one_minute_in_ms = 1000 * 60;
-    const one_hour_in_ms = one_minute_in_ms * 60;
-    const one_day_in_ms = one_hour_in_ms * 24;
-    const one_week_in_ms = one_day_in_ms * 7;
     // percentage of a temporal step (e.g. day) that temporal range needs
     // to be greater than, before that temporal step is drawn
-    const range2step_threshold = 1.3;
+    // ie how many lines visible at higher temporal step before
+    // we switch to the lower temporal step (ie grid)
+    const range2step_threshold = 2;
     // delete all marker lines
     for (var i = periodic_time_markers.children.length - 1; i >= 0; i--) {
-      let obj = periodic_time_markers.children[i];
-      periodic_time_markers.remove(obj);
+      let time_marker = periodic_time_markers.children[i];
+      time_marker.userData.textEl.remove();
+      periodic_time_markers.remove(time_marker);
     }
 
-    if (temporal_range > range2step_threshold * one_week_in_ms) {
-      create_array_time_marker_line(
-        creation_time,
-        mapped_buffered_right,
-        one_week_in_ms
-      );
-    } else if (temporal_range > range2step_threshold * one_day_in_ms) {
-      create_array_time_marker_line(
-        creation_time,
-        mapped_buffered_right,
-        one_day_in_ms
-      );
-    } else if (temporal_range > range2step_threshold * one_hour_in_ms) {
-      create_array_time_marker_line(
-        creation_time,
-        mapped_buffered_right,
-        one_hour_in_ms
-      );
-    } else if (temporal_range > range2step_threshold * one_minute_in_ms) {
-      create_array_time_marker_line(
-        creation_time,
-        mapped_buffered_right,
-        one_minute_in_ms
-      );
-    }
+    // some() stops computing when at least one element returns true
+    temporal_steps.some((step, i) => {
+      if (temporal_range > range2step_threshold * step) {
+        create_array_time_marker_line(
+          creation_time,
+          mapped_buffered_right,
+          step
+        );
+        return true;
+      } else {
+        return false;
+      }
+    });
   };
 
   const create_array_time_marker_line = (
@@ -470,12 +478,12 @@
   ) => {
     creation_time = creation_time - (creation_time % temporal_step);
     while (creation_time < mapped_buffered_right) {
-      create_time_marker_line(creation_time);
+      create_time_marker_line(creation_time, temporal_step);
       creation_time += temporal_step;
     }
   };
 
-  const create_time_marker_line = (time) => {
+  const create_time_marker_line = (time, temporal_step) => {
     const points = [
       new THREE.Vector3(0, 10000, 0),
       new THREE.Vector3(0, -10000, 0),
@@ -485,6 +493,28 @@
     time_marker_line.position.x = time2x(time);
     time_marker_line.userData.time_text = new Date(time).toISOString();
     periodic_time_markers.add(time_marker_line);
+
+    const elem = document.createElement("div");
+    switch (temporal_step) {
+      case one_week_in_ms:
+      case one_day_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(5, 10);
+        break;
+      case six_hours_in_ms:
+      case one_hour_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(11, 16);
+        break;
+      case fifteen_minutes_in_ms:
+      case one_minute_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(13, 16);
+        break;
+      default:
+        elem.textContent = new Date(time).toISOString();
+    }
+    elem.style.position = "absolute";
+    elem.classList.toggle("text_level1");
+    time_markers_text_el.appendChild(elem);
+    time_marker_line.userData.textEl = elem;
   };
 </script>
 
@@ -507,6 +537,7 @@
     pointer-events: none;"
     />
   {/if}
+  <div bind:this={time_markers_text_el} id="time_markers_text" />
   <div id="current_time_text" class="text_level1">{current_time_text}</div>
 </div>
 
@@ -528,5 +559,9 @@
     left: calc(50% + 5px);
     background-color: black;
     width: fit-content;
+  }
+
+  #time_markers_text {
+    position: relative;
   }
 </style>
