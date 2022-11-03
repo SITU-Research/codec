@@ -14,7 +14,9 @@
 
   // parameters
   let time_scale_factor = 0.00001;
-  const one_minute_in_ms = 1000 * 60;
+  const one_second_in_ms = 1000;
+  const fifteen_seconds_in_ms = 1000 * 15;
+  const one_minute_in_ms = one_second_in_ms * 60;
   const fifteen_minutes_in_ms = one_minute_in_ms * 15;
   const one_hour_in_ms = one_minute_in_ms * 60;
   const six_hours_in_ms = one_hour_in_ms * 6;
@@ -27,6 +29,8 @@
     one_hour_in_ms,
     fifteen_minutes_in_ms,
     one_minute_in_ms,
+    fifteen_seconds_in_ms,
+    one_second_in_ms,
   ];
 
   let videos, // videos coming in from store (currently set to filtered videos)
@@ -77,7 +81,6 @@
 
   // debugging variables
   let debugging = false;
-  let log_at_first = true;
   let debug_canvas, debug_camera, debug_renderer, cameraHelper;
 
   onMount(() => {
@@ -86,6 +89,17 @@
     animate();
     ro.observe(container);
   });
+
+  const cleanMaterial = (material) => {
+    material.dispose();
+    // dispose textures
+    for (const key of Object.keys(material)) {
+      const value = material[key];
+      if (value && typeof value === "object" && "minFilter" in value) {
+        value.dispose();
+      }
+    }
+  };
 
   onDestroy(() => {
     renderer.dispose();
@@ -102,18 +116,6 @@
         for (const material of object.material) cleanMaterial(material);
       }
     });
-
-    const cleanMaterial = (material) => {
-      material.dispose();
-
-      // dispose textures
-      for (const key of Object.keys(material)) {
-        const value = material[key];
-        if (value && typeof value === "object" && "minFilter" in value) {
-          value.dispose();
-        }
-      }
-    };
   });
 
   function init(el, container) {
@@ -536,6 +538,10 @@
       case fifteen_minutes_in_ms:
       case one_minute_in_ms:
         elem.textContent = new Date(time).toISOString().slice(13, 16);
+        break;
+      case fifteen_seconds_in_ms:
+      case one_second_in_ms:
+        elem.textContent = new Date(time).toISOString().slice(16, 19);
         break;
       default:
         elem.textContent = new Date(time).toISOString();
