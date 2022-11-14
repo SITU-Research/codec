@@ -11,11 +11,11 @@
     events_store,
     ui_store,
     filter_toggles,
-    platform_config_store,
+    platform_config_store
   } from "./stores/store";
 
-  let mouse_xy = { x: 0, y: 0 };
-  let handleMouseMove = throttle((event) => {
+  const mouse_xy = { x: 0, y: 0 };
+  const handleMouseMove = throttle((event) => {
     mouse_xy.x = event.clientX;
     mouse_xy.y = event.clientY;
   }, 5);
@@ -23,19 +23,19 @@
   let width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
   let height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
 
-  let handleWindowResize = throttle(() => {
+  const handleWindowResize = throttle(() => {
     width_mod_grid = Math.floor(document.body.clientWidth / 10) * 10;
     height_mod_grid = Math.floor(document.body.clientHeight / 10) * 10;
   }, 500);
 
   onMount(() => {
-    let fetch_interval = setInterval(fetch_google_sheet_data, 10000);
+    const fetch_interval = setInterval(fetch_google_sheet_data, 10000);
     return () => {
       clearInterval(fetch_interval);
     };
   });
 
-  function fetch_google_sheet_data() {
+  function fetch_google_sheet_data () {
     return fetch(
       `/.netlify/functions/googlesheets?sheet=platformconfig&offset=1`
     )
@@ -66,17 +66,17 @@
       });
   }
 
-  function process_event_sheet_response(rows) {
+  function process_event_sheet_response (rows) {
     // first row of table is column names
-    let column_names = rows[0].map((col_name) => col_name.toLowerCase());
+    const column_names = rows[0].map((col_name) => col_name.toLowerCase());
 
     // create array to feed data as being processed
-    let events = [];
+    const events = [];
 
     // for every row (skipping the first row of column names)
     rows.slice(1).forEach((row, i) => {
       // create a video object
-      let event = {};
+      const event = {};
       // for each column in row
       row.forEach((col_value, i) => {
         // assign the new object the column value under the correct key
@@ -87,15 +87,15 @@
       event.start_date_time = localtoUTCdatetimeobj(
         new Date(event["datetime (yyyy-mm-dd hh:mm:ss)"])
       );
-      //create 10 second block for each event
+      // create 10 second block for each event
       event.end_date_time = new Date(event.start_date_time.getTime() + 10000);
       // event.className = "case" + event.case
       event.start = event.start_date_time;
       event.end = event.end_date_time;
 
-      var id = i + " event " + event.event;
+      const id = i + " event " + event.event;
       event.id = id;
-      event.description = event["event"];
+      event.description = event.event;
 
       // add video object to data array
       events.push(event);
@@ -105,31 +105,31 @@
     }
   }
 
-  function process_video_sheet_response(rows) {
+  function process_video_sheet_response (rows) {
     // first row of table is column names
-    let column_names = rows[0];
+    const column_names = rows[0];
     // create array to feed data as being processed
-    let new_videos = {};
+    const new_videos = {};
 
     // for every row (skipping the first row of column names)
     rows.slice(1).forEach((row, r) => {
       try {
         // create a video object
-        let video = {};
+        const video = {};
         // for each column in row
         row.forEach((col_value, i) => {
           // assign the new object the column value under the correct key
 
           // if the col value a string boolean
-          if (col_value == "TRUE" || col_value == "FALSE") {
+          if (col_value === "TRUE" || col_value === "FALSE") {
             // transform string boolean to actual boolean
-            video[column_names[i]] = col_value == "TRUE";
+            video[column_names[i]] = col_value === "TRUE";
             // if boolean not already in filter_toggles (only need to do once on first row)
             // and checkig if already in there prevents from re-adding + resetting to false
             // at every sheet fetch
             if (
-              r == 0 &&
-              !Object.keys($filter_toggles).includes(column_names[i])
+              r === 0 &&
+                !Object.keys($filter_toggles).includes(column_names[i])
             ) {
               $filter_toggles[column_names[i]] = false;
             }
@@ -141,7 +141,7 @@
         // properties for map
         if (
           video[$platform_config_store["Title of column used for latitude"]] &&
-          video[$platform_config_store["Title of column used for longitude"]]
+            video[$platform_config_store["Title of column used for longitude"]]
         ) {
           video.lat = parseFloat(
             video[$platform_config_store["Title of column used for latitude"]]
@@ -162,7 +162,7 @@
           video[
             $platform_config_store["Title of column used for chronolocation"]
           ] &&
-          video[$platform_config_store["Title of column used for duration"]]
+            video[$platform_config_store["Title of column used for duration"]]
         ) {
           try {
             video.duration =
@@ -178,7 +178,7 @@
                 ]
               )
             );
-            let [length_hours, length_minutes, length_seconds] =
+            const [length_hours, length_minutes, length_seconds] =
               video[
                 $platform_config_store["Title of column used for duration"]
               ].split(":");
@@ -190,8 +190,8 @@
             video.times = [
               {
                 starting_time: new Date(video.start).getTime(),
-                ending_time: new Date(video.end_date_time).getTime(),
-              },
+                ending_time: new Date(video.end_date_time).getTime()
+              }
             ];
 
             video.end = video.end_date_time;
@@ -235,8 +235,8 @@
 
   // Takes datetime object created on local machine with time offset
   // returns datetime object in UTC time when read by same local machine
-  function localtoUTCdatetimeobj(datetimeobj) {
-    let userTimezoneOffset = datetimeobj.getTimezoneOffset() * 60000;
+  function localtoUTCdatetimeobj (datetimeobj) {
+    const userTimezoneOffset = datetimeobj.getTimezoneOffset() * 60000;
     return new Date(datetimeobj.getTime() - userTimezoneOffset);
   }
 </script>
