@@ -58,7 +58,7 @@
         )
           .then((assets_info) => assets_info.json())
           .then((assets_info) => {
-            let n_necessary_requests = assets_info.total_size / 5500000.0; // max size is 6k, doing 5.5k for padding
+            let n_necessary_requests = assets_info.total_size / 5000000.0; // max size is 6k, doing 5k for padding
             let n_rows_per_requests = Math.floor(
               assets_info.n_rows / n_necessary_requests
             );
