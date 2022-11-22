@@ -575,14 +575,6 @@
   };
 
   let handleOnTempNavClick = (period) => {
-    console.log("-- on temp nav click --");
-    console.log(temporal_nav_periods);
-    console.log("before");
-    console.log(
-      `camera position: ${camera.position.x},${camera.position.y},${camera.position.z}`
-    );
-    console.log(`camera left,right: ${camera.left}, ${camera.right}`);
-    console.log(period.start);
     let camera_x_new = time2x(period.end) / 2 + time2x(period.start) / 2;
     camera.position.x = camera_x_new;
     camera.right = (time2x(period.end) - time2x(period.start)) / 2;
@@ -595,11 +587,6 @@
     );
     controls.update();
     updateTimeMarkers();
-    console.log("after");
-    console.log(
-      `camera position: ${camera.position.x},${camera.position.y},${camera.position.z}`
-    );
-    console.log(`camera left: ${camera.left}, ${camera.right}`);
   };
 </script>
 
