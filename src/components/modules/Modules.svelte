@@ -1,7 +1,7 @@
 <script lang="ts">
   import Module from "./Module.svelte";
   import Media from "./Media.svelte";
-  import { ui_store } from "../../stores/store";
+  import { platform_config_store, ui_store } from "../../stores/store";
 </script>
 
 <div id="modules_container">
@@ -13,6 +13,9 @@
   <div id="nonmedia_container">
     <Module module={"timeline"} />
     <Module module={"map"} />
+    {#if $platform_config_store["Report video url"] !== undefined}
+      <Module module={"report"} />
+    {/if}
   </div>
 </div>
 
