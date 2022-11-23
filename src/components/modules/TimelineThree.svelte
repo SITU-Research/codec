@@ -46,20 +46,7 @@
 
   let el, container, time_markers_text_el;
   let current_time_text;
-  var ro = new ResizeObserver((entries) => {
-    for (let entry of entries) {
-      const cr = entry.contentRect;
-      canvasWidth = cr.width;
-      canvasHeight = cr.height;
-      renderer.setSize(canvasWidth, canvasHeight);
-      camera.aspect = canvasWidth / canvasHeight;
-      camera.updateProjectionMatrix();
 
-      debug_renderer.setSize(canvasWidth, canvasHeight);
-      debug_camera.aspect = canvasWidth / canvasHeight;
-      debug_camera.updateProjectionMatrix();
-    }
-  });
   let mouse_dragged = false;
   let mouse_dragged_timeout;
   let initial_setup_done;
@@ -83,6 +70,22 @@
   let debugging = false;
   let debug_canvas, debug_camera, debug_renderer, cameraHelper;
 
+  var ro = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      const cr = entry.contentRect;
+      canvasWidth = cr.width;
+      canvasHeight = cr.height;
+      renderer.setSize(canvasWidth, canvasHeight);
+      camera.aspect = canvasWidth / canvasHeight;
+      camera.updateProjectionMatrix();
+
+      if (debugging) {
+        debug_renderer.setSize(canvasWidth, canvasHeight);
+        debug_camera.aspect = canvasWidth / canvasHeight;
+        debug_camera.updateProjectionMatrix();
+      }
+    }
+  });
   onMount(() => {
     initial_setup_done = false;
     init(el, container);
@@ -203,6 +206,7 @@
     }
   }
 
+  // intake timeline begin and end point
   $: {
     timeBegin = new Date(
       $platform_config_store["Timeline begin datetime"]
@@ -220,6 +224,23 @@
     };
   }
 
+  // intake temporal nav buttons
+  $: temporal_nav_periods = $platform_config_store["Temporal nav periods"]
+    .split("\n")
+    .map((period_string) => {
+      let [period_title, period_dates_string] = period_string.split("~");
+      let [period_start_string, period_end_string] =
+        period_dates_string.split(">");
+      let period_start = Date.parse(period_start_string + " GMT");
+      let period_end = Date.parse(period_end_string + " GMT");
+      return {
+        title: period_title,
+        start: period_start,
+        end: period_end,
+      };
+    });
+
+  // intake videos to timeline
   $: {
     videos = Object.values($media_store_filtered);
     videos_w_chrono = videos
@@ -283,6 +304,7 @@
     }
   }
 
+  // adjust timeline camera when videos etc loaded
   $: {
     if (camera && !initial_setup_done) {
       let left, right, top, bottom;
@@ -551,9 +573,36 @@
     time_markers_text_el.appendChild(elem);
     time_marker_line.userData.textEl = elem;
   };
+
+  let handleOnTempNavClick = (period) => {
+    let camera_x_new = time2x(period.end) / 2 + time2x(period.start) / 2;
+    camera.position.x = camera_x_new;
+    camera.right = (time2x(period.end) - time2x(period.start)) / 2;
+    camera.left = -camera.right;
+    camera.updateProjectionMatrix();
+    controls.target = new THREE.Vector3(
+      camera.position.x,
+      camera.position.y,
+      camera.position.z - 5
+    );
+    controls.update();
+    updateTimeMarkers();
+  };
 </script>
 
 <div bind:this={container} id="timeline_container" on:mousewheel={handleScroll}>
+  {#if temporal_nav_periods}
+    <div id="temporal_nav">
+      {#each temporal_nav_periods as period}
+        <button
+          class="box text_level2 noselect"
+          on:click={() => {
+            handleOnTempNavClick(period);
+          }}>{period.title}</button
+        >
+      {/each}
+    </div>
+  {/if}
   <canvas
     bind:this={el}
     on:mousemove={handleMouseMove_throttle}
@@ -581,6 +630,12 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  #temporal_nav {
+    z-index: 1;
   }
 
   canvas {
