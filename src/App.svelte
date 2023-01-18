@@ -155,7 +155,8 @@
         video.type = "range";
         video.label = video.UAR;
         video.id = video.UAR;
-        video.url = $platform_config_store["Title of column used for url"];
+        video.url =
+          video[$platform_config_store["Title of column used for url"]];
 
         // date time string to datetime object
         if (
@@ -210,7 +211,7 @@
         //     responses = responses.replaceAll(" ", "");
         //     responses
         //       .split(",")
-        //       .filter((response) => {
+        //       .filter((response) => {eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
         //         return !["", " ", "NULL"].includes(response);
         //       })
         //       .forEach((response) => {
@@ -223,6 +224,7 @@
         // });
 
         new_videos[video.UAR] = video;
+        console.log(video);
       } catch (error) {
         console.log(error);
       }
