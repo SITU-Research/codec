@@ -273,6 +273,7 @@
 
     if (JSON.stringify($media_store) !== JSON.stringify(new_videos)) {
       $media_store = new_videos;
+      console.log(new_videos["NYC01386"]);
     }
   }
 

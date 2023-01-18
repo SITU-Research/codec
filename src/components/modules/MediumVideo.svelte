@@ -19,7 +19,9 @@
 </script>
 
 {#if src !== null}
-  {#if used_filepath.includes("mp4") || used_filepath.includes("mov")}
+  {#if used_filepath.toLowerCase().includes("mp4") || used_filepath
+      .toLowerCase()
+      .includes("mov")}
     <div class="medium_video" id={medium.id}>
       <video controls muted {src} type="video/mp4" />
     </div>

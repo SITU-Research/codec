@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
   import { onDestroy, onMount } from "svelte";
   import { throttle } from "underscore";
 
@@ -42,7 +42,8 @@
     orderedByTime = true, // boolean whether video should be positioned vertically by time
     orderedOtherIndex = {}, // dictionary: a video's property value > vertical position
     free_time_at_row = [], // array containing, for every vertical row, when the latest video on that row ends
-    video_y_position = []; // array containing, for every video, their vertical position
+    video_y_position = [], // array containing, for every video, their vertical position;
+    temporal_nav_periods = [];
 
   let el, container, time_markers_text_el;
   let current_time_text;
@@ -225,20 +226,22 @@
   }
 
   // intake temporal nav buttons
-  $: temporal_nav_periods = $platform_config_store["Temporal nav periods"]
-    .split("\n")
-    .map((period_string) => {
-      let [period_title, period_dates_string] = period_string.split("~");
-      let [period_start_string, period_end_string] =
-        period_dates_string.split(">");
-      let period_start = Date.parse(period_start_string + " GMT");
-      let period_end = Date.parse(period_end_string + " GMT");
-      return {
-        title: period_title,
-        start: period_start,
-        end: period_end,
-      };
-    });
+  $: if ($platform_config_store["Temporal nav periods"]) {
+    temporal_nav_periods = $platform_config_store["Temporal nav periods"]
+      .split("\n")
+      .map((period_string) => {
+        let [period_title, period_dates_string] = period_string.split("~");
+        let [period_start_string, period_end_string] =
+          period_dates_string.split(">");
+        let period_start = Date.parse(period_start_string + " GMT");
+        let period_end = Date.parse(period_end_string + " GMT");
+        return {
+          title: period_title,
+          start: period_start,
+          end: period_end,
+        };
+      });
+  }
 
   // intake videos to timeline
   $: {
