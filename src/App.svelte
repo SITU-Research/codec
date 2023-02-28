@@ -224,7 +224,6 @@
         // });
 
         new_videos[video.UAR] = video;
-        console.log(video);
       } catch (error) {
         console.log(error);
       }

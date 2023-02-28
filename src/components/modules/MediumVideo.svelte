@@ -3,26 +3,34 @@
   export let medium;
 
   let src;
+  let used_filepath;
   if ($platform_config_store["Source of media files"].includes("local")) {
     try {
+      used_filepath = $local_file_store[medium.UAR].name;
       src = URL.createObjectURL($local_file_store[medium.UAR]);
     } catch {
       src = null;
     }
   } else {
-    src = medium[$platform_config_store["Title of column used for url"]];
+    used_filepath =
+      medium[$platform_config_store["Title of column used for url"]];
+    src = used_filepath;
   }
 </script>
 
-{#if src.includes("mp4") || src.includes("mov")}
-  <div class="medium_video" id={medium.id}>
-    <video controls muted {src} type="video/mp4" />
-  </div>
-{:else if src.includes("png") || src.includes("jpeg") || src.includes("jpg")}
-  <div class="medium_image" id={medium.id}>
-    <!-- svelte-ignore a11y-missing-attribute -->
-    <img {src} />
-  </div>
+{#if src !== null}
+  {#if used_filepath.toLowerCase().includes("mp4") || used_filepath
+      .toLowerCase()
+      .includes("mov")}
+    <div class="medium_video" id={medium.id}>
+      <video controls muted {src} type="video/mp4" />
+    </div>
+  {:else if used_filepath.includes("png") || used_filepath.includes("jpeg") || used_filepath.includes("jpg")}
+    <div class="medium_image" id={medium.id}>
+      <!-- svelte-ignore a11y-missing-attribute -->
+      <img {src} />
+    </div>
+  {/if}
 {/if}
 
 <style>
