@@ -4,3 +4,6 @@
 /public/build/
 dist
 TODO.md
+
+# Local Netlify folder
+.netlify
