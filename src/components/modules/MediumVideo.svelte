@@ -21,11 +21,13 @@
 {#if src !== null}
   {#if used_filepath.toLowerCase().includes("mp4") || used_filepath
       .toLowerCase()
-      .includes("mov")}
+      .includes("mov") || used_filepath
+      .toLowerCase()
+      .includes("webm")}
     <div class="medium_video" id={medium.id}>
       <video controls muted {src} type="video/mp4" />
     </div>
-  {:else if used_filepath.includes("png") || used_filepath.includes("jpeg") || used_filepath.includes("jpg")}
+  {:else if used_filepath.includes("png") || used_filepath.includes("jpeg") || used_filepath.includes("jpg") || used_filepath.includes("webp")}
     <div class="medium_image" id={medium.id}>
       <!-- svelte-ignore a11y-missing-attribute -->
       <img {src} />
