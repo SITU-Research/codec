@@ -1,11 +1,16 @@
 <script>
   import { local_file_store, platform_config_store } from "../../stores/store";
-  import { sync_time } from "../../stores/sync_time_store";
+  import {
+    sync_time,
+    sync_paused,
+    sync_time_origin_UAR,
+  } from "../../stores/sync_time_store";
   export let medium;
 
   let src;
   let used_filepath;
   let video_time = 0;
+  let paused = true;
   if ($platform_config_store["Source of media files"].includes("local")) {
     try {
       used_filepath = $local_file_store[medium.UAR].name;
@@ -24,9 +29,22 @@
       medium.start.getTime() + Math.floor(video_time * 1000)
     );
     $sync_time = new_time;
+    $sync_paused = paused;
+    $sync_time_origin_UAR = medium.UAR;
   };
 
-  $: sync_time, console.log($sync_time);
+  $: {
+    if (
+      $sync_time.getTime() > medium.start.getTime() &&
+      $sync_time.getTime() < medium.end.getTime() &&
+      $sync_time_origin_UAR !== medium.UAR
+    ) {
+      console.log(medium.UAR);
+      console.log($sync_time_origin_UAR, $sync_time);
+      video_time = ($sync_time.getTime() - medium.start.getTime()) / 1000;
+      paused = $sync_paused;
+    }
+  }
 </script>
 
 {#if src !== null}
@@ -40,6 +58,7 @@
         {src}
         type="video/mp4"
         bind:currentTime={video_time}
+        bind:paused
         on:play={handleOnVideoPlay}
         on:pause={handleOnVideoPlay}
         on:seeked={handleOnVideoPlay}
