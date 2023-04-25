@@ -1,9 +1,11 @@
 <script>
   import { local_file_store, platform_config_store } from "../../stores/store";
+  import { sync_time } from "../../stores/sync_time_store";
   export let medium;
 
   let src;
   let used_filepath;
+  let video_time = 0;
   if ($platform_config_store["Source of media files"].includes("local")) {
     try {
       used_filepath = $local_file_store[medium.UAR].name;
@@ -16,16 +18,32 @@
       medium[$platform_config_store["Title of column used for url"]];
     src = used_filepath;
   }
+
+  let handleOnVideoPlay = () => {
+    let new_time = new Date(
+      medium.start.getTime() + Math.floor(video_time * 1000)
+    );
+    $sync_time = new_time;
+  };
+
+  $: sync_time, console.log($sync_time);
 </script>
 
 {#if src !== null}
   {#if used_filepath.toLowerCase().includes("mp4") || used_filepath
       .toLowerCase()
-      .includes("mov") || used_filepath
-      .toLowerCase()
-      .includes("webm")}
+      .includes("mov") || used_filepath.toLowerCase().includes("webm")}
     <div class="medium_video" id={medium.id}>
-      <video controls muted {src} type="video/mp4" />
+      <video
+        controls
+        muted
+        {src}
+        type="video/mp4"
+        bind:currentTime={video_time}
+        on:play={handleOnVideoPlay}
+        on:pause={handleOnVideoPlay}
+        on:seeked={handleOnVideoPlay}
+      />
     </div>
   {:else if used_filepath.includes("png") || used_filepath.includes("jpeg") || used_filepath.includes("jpg") || used_filepath.includes("webp")}
     <div class="medium_image" id={medium.id}>
