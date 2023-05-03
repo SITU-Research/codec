@@ -127,18 +127,18 @@
             class="slider"
             on:input={handleOnSeekInteract}
           />
+          <button class="box text_level1" on:click={handleOnMuteButtonClick}
+            >{muted ? "Unmute" : "Mute"}</button
+          >
+          <input
+            type="range"
+            min="0"
+            step="0.001"
+            max="1"
+            bind:value={volume}
+            class="slider"
+          />
         </div>
-        <button class="box text_level1" on:click={handleOnMuteButtonClick}
-          >{muted ? "Unmute" : "Mute"}</button
-        >
-        <input
-          type="range"
-          min="0"
-          step="0.001"
-          max="1"
-          bind:value={volume}
-          class="slider"
-        />
       </div>
     </div>
   {:else if used_filepath.includes("png") || used_filepath.includes("jpeg") || used_filepath.includes("jpg") || used_filepath.includes("webp")}
@@ -181,13 +181,46 @@
     flex-flow: row nowrap;
   }
 
-  #custom-seekbar {
-    cursor: pointer;
-    height: 10px;
-    margin-bottom: 10px;
-    outline: thin solid orange;
-    overflow: hidden;
-    position: relative;
-    width: 400px;
+  :root {
+    --seekbar-pre-color: rgb(80, 80, 80);
+    --seekbar-post-color: rgb(201, 201, 201);
+  }
+
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    input[type="range"] {
+      overflow: hidden;
+      width: 80px;
+      -webkit-appearance: none;
+      background-color: var(--seekbar-post-color);
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 10px;
+      -webkit-appearance: none;
+      color: var(--seekbar-pre-color);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      width: 10px;
+      -webkit-appearance: none;
+      height: 10px;
+      cursor: ew-resize;
+      background: #434343;
+      box-shadow: -80px 0 0 80px var(--seekbar-pre-color);
+    }
+  }
+  /** FF*/
+  input[type="range"]::-moz-range-progress {
+    background-color: var(--seekbar-pre-color);
+  }
+  input[type="range"]::-moz-range-track {
+    background-color: var(--seekbar-post-color);
+  }
+  /* IE*/
+  input[type="range"]::-ms-fill-lower {
+    background-color: var(--seekbar-pre-color);
+  }
+  input[type="range"]::-ms-fill-upper {
+    background-color: var(--seekbar-post-color);
   }
 </style>
