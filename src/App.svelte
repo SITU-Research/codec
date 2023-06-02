@@ -11,7 +11,7 @@
     events_store,
     ui_store,
     filter_toggles,
-    platform_config_store
+    platform_config_store,
   } from "./stores/store";
 
   const mouse_xy = { x: 0, y: 0 };
@@ -35,7 +35,7 @@
     };
   });
 
-  function fetch_google_sheet_data () {
+  function fetch_google_sheet_data() {
     return fetch(
       `/.netlify/functions/googlesheets?sheet=platformconfig&offset=1`
     )
@@ -66,7 +66,7 @@
       });
   }
 
-  function process_event_sheet_response (rows) {
+  function process_event_sheet_response(rows) {
     // first row of table is column names
     const column_names = rows[0].map((col_name) => col_name.toLowerCase());
 
@@ -105,7 +105,7 @@
     }
   }
 
-  function process_video_sheet_response (rows) {
+  function process_video_sheet_response(rows) {
     // first row of table is column names
     const column_names = rows[0];
     // create array to feed data as being processed
@@ -128,8 +128,8 @@
             // and checkig if already in there prevents from re-adding + resetting to false
             // at every sheet fetch
             if (
-              r === 0 &&
-                !Object.keys($filter_toggles).includes(column_names[i])
+              (r === 0 || r === 1) &&
+              !Object.keys($filter_toggles).includes(column_names[i])
             ) {
               $filter_toggles[column_names[i]] = false;
             }
@@ -141,7 +141,7 @@
         // properties for map
         if (
           video[$platform_config_store["Title of column used for latitude"]] &&
-            video[$platform_config_store["Title of column used for longitude"]]
+          video[$platform_config_store["Title of column used for longitude"]]
         ) {
           video.lat = parseFloat(
             video[$platform_config_store["Title of column used for latitude"]]
@@ -163,7 +163,7 @@
           video[
             $platform_config_store["Title of column used for chronolocation"]
           ] &&
-            video[$platform_config_store["Title of column used for duration"]]
+          video[$platform_config_store["Title of column used for duration"]]
         ) {
           try {
             video.duration =
@@ -191,8 +191,8 @@
             video.times = [
               {
                 starting_time: new Date(video.start).getTime(),
-                ending_time: new Date(video.end_date_time).getTime()
-              }
+                ending_time: new Date(video.end_date_time).getTime(),
+              },
             ];
 
             video.end = video.end_date_time;
@@ -236,7 +236,7 @@
 
   // Takes datetime object created on local machine with time offset
   // returns datetime object in UTC time when read by same local machine
-  function localtoUTCdatetimeobj (datetimeobj) {
+  function localtoUTCdatetimeobj(datetimeobj) {
     const userTimezoneOffset = datetimeobj.getTimezoneOffset() * 60000;
     return new Date(datetimeobj.getTime() - userTimezoneOffset);
   }
