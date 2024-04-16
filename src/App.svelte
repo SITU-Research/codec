@@ -37,7 +37,7 @@
 
   function fetch_google_sheet_data() {
     return fetch(
-      `/.netlify/functions/googlesheets?sheet=platformconfig&offset=1`
+      `/.netlify/functions/googlesheets?sheet=platformconfig&offset=1`,
     )
       .then((rows_string) => rows_string.json())
       .then((platform_config) => {
@@ -46,7 +46,7 @@
           `/.netlify/functions/googlesheets?sheet=` +
             platform_config["Title of tab with media assets"] +
             `&offset=` +
-            platform_config["Rank of assets row with column names"]
+            platform_config["Rank of assets row with column names"],
         )
           .then((rows_string) => rows_string.json())
           .then((media) => {
@@ -57,7 +57,7 @@
           `/.netlify/functions/googlesheets?sheet=` +
             platform_config["Title of tab with events"] +
             `&offset=` +
-            platform_config["Rank of events row with column names"]
+            platform_config["Rank of events row with column names"],
         )
           .then((rows_string) => rows_string.json())
           .then((events) => {
@@ -85,7 +85,7 @@
 
       // date time string to datetime object
       event.start_date_time = localtoUTCdatetimeobj(
-        new Date(event["datetime (yyyy-mm-dd hh:mm:ss)"])
+        new Date(event["datetime (yyyy-mm-dd hh:mm:ss)"]),
       );
       // create 10 second block for each event
       event.end_date_time = new Date(event.start_date_time.getTime() + 10000);
@@ -144,10 +144,10 @@
           video[$platform_config_store["Title of column used for longitude"]]
         ) {
           video.lat = parseFloat(
-            video[$platform_config_store["Title of column used for latitude"]]
+            video[$platform_config_store["Title of column used for latitude"]],
           );
           video.long = parseFloat(
-            video[$platform_config_store["Title of column used for longitude"]]
+            video[$platform_config_store["Title of column used for longitude"]],
           );
         }
 
@@ -176,8 +176,8 @@
                   $platform_config_store[
                     "Title of column used for chronolocation"
                   ]
-                ]
-              )
+                ],
+              ),
             );
             const [length_hours, length_minutes, length_seconds] =
               video[

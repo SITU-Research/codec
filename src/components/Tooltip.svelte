@@ -20,7 +20,7 @@
       const dateFormatter = new Intl.DateTimeFormat("en-UK", dateOptions);
       try {
         hovered_media.start_string_utc = dateFormatter.format(
-          hovered_media.start
+          hovered_media.start,
         );
       } catch {
         hovered_media.start_string_utc = "not available";
