@@ -14,10 +14,10 @@
 
   $: {
     timeBegin = localtoUTCdatetimeobj(
-      new Date($platform_config_store["Timeline begin datetime"])
+      new Date($platform_config_store["Timeline begin datetime"]),
     );
     timeEnd = localtoUTCdatetimeobj(
-      new Date($platform_config_store["Timeline end datetime"])
+      new Date($platform_config_store["Timeline end datetime"]),
     );
   }
 
@@ -29,11 +29,11 @@
     ].map((el) => el["vis-item"].id);
     // list of elements shown as clicked but no longer clicked according to ui_store
     let no_longer_clicked = clicked_timeline_els.filter(
-      (x) => !$ui_store.media_in_view.includes(x)
+      (x) => !$ui_store.media_in_view.includes(x),
     );
     // list of elements not shown as clicked but clicked according to ui_store
     let newly_clicked = $ui_store.media_in_view.filter(
-      (x) => !clicked_timeline_els.includes(x)
+      (x) => !clicked_timeline_els.includes(x),
     );
 
     no_longer_clicked.forEach((UAR) => {
@@ -59,11 +59,11 @@
     ].map((el) => el["vis-item"].id);
     // list of elements shown as hovered but no longer hovered according to ui_store
     let no_longer_hovered = hovered_timeline_els.filter(
-      (x) => !$ui_store.media_in_view.includes(x)
+      (x) => !$ui_store.media_in_view.includes(x),
     );
     // list of elements not shown as hovered but hovered according to ui_store
     let newly_hovered = $ui_store.media_in_view.filter(
-      (x) => !hovered_timeline_els.includes(x)
+      (x) => !hovered_timeline_els.includes(x),
     );
 
     no_longer_hovered.forEach((UAR) => {
@@ -146,7 +146,7 @@
       moment: function (date) {
         return moment(date).utcOffset(
           "+00:00", //$platform_config_store["Local GMT offset ([+-]HH:MM)"],
-          false
+          false,
         );
       },
     };
@@ -162,7 +162,7 @@
       if (UAR) {
         if ($ui_store.media_in_view.includes(UAR)) {
           $ui_store.media_in_view = $ui_store.media_in_view.filter(
-            (exist_UAR) => exist_UAR !== UAR
+            (exist_UAR) => exist_UAR !== UAR,
           );
         } else {
           $ui_store.media_in_view = [...$ui_store.media_in_view, UAR];
@@ -180,7 +180,7 @@
     main_timeline.on("itemout", (properties) => {
       let UAR = properties.item;
       $ui_store.media_hovered = $ui_store.media_hovered.filter(
-        (exist_UAR) => exist_UAR !== UAR
+        (exist_UAR) => exist_UAR !== UAR,
       );
     });
 
@@ -192,7 +192,7 @@
     // add current time line
     main_timeline.addCustomTime(
       timeBegin.getTime() / 2 + timeEnd.getTime() / 2,
-      "current_time_line"
+      "current_time_line",
     );
 
     main_timeline.on("mouseOver", (properties) => {
@@ -204,7 +204,7 @@
         // optional custom time marker changes
         try {
           document.getElementsByClassName(
-            "current_time_line"
+            "current_time_line",
           )[0].style.display = "block";
         } catch (error) {
           console.log(error);
@@ -215,7 +215,7 @@
 
   function updateCurrentTimeToMatchTimeline(properties) {
     let current_time = new Date(
-      (properties.start.getTime() + properties.end.getTime()) / 2
+      (properties.start.getTime() + properties.end.getTime()) / 2,
     );
     // make sure offset from utc is accounted for
     // current_time.setHours(

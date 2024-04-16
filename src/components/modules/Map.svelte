@@ -19,7 +19,7 @@
     let UAR = event.target.dataset.uar; //automatically lowercased
     if ($ui_store.media_in_view.includes(UAR)) {
       $ui_store.media_in_view = $ui_store.media_in_view.filter(
-        (exist_UAR) => exist_UAR !== UAR
+        (exist_UAR) => exist_UAR !== UAR,
       );
     } else {
       $ui_store.media_in_view = [...$ui_store.media_in_view, UAR];
@@ -32,7 +32,7 @@
   function onMarkerOut(event) {
     let UAR = event.target.dataset.uar; //automatically lowercased
     $ui_store.media_hovered = $ui_store.media_hovered.filter(
-      (exist_UAR) => exist_UAR !== UAR
+      (exist_UAR) => exist_UAR !== UAR,
     );
   }
 </script>
@@ -75,7 +75,7 @@
               data-UAR={medium.UAR}
               style="
                               font-size:{$ui_store.media_hovered.includes(
-                medium.UAR
+                medium.UAR,
               ) || $ui_store.media_in_view.includes(medium.UAR)
                 ? '60px'
                 : '30px'};

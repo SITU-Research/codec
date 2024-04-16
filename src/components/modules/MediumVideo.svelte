@@ -23,9 +23,7 @@
       .toLowerCase()
       .includes("mov") || used_filepath
       .toLowerCase()
-      .includes("webm") || used_filepath
-      .toLowerCase()
-      .includes("m4v")}
+      .includes("webm") || used_filepath.toLowerCase().includes("m4v")}
     <div class="medium_video" id={medium.id}>
       <video controls muted {src} type="video/mp4" />
     </div>
