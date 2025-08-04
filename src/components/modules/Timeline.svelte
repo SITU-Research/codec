@@ -222,6 +222,7 @@
     //   current_time.getHours() -
     //     utcstring2int($platform_config_store["Local GMT offset ([+-]HH:MM)"])
     // );
+    // main_timeline.
     main_timeline.removeCustomTime("current_time_line");
     main_timeline.addCustomTime(current_time, "current_time_line");
 

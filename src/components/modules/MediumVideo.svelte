@@ -4,6 +4,9 @@
 
   let src;
   let used_filepath;
+  // export let video_start, video_end, progress;
+  export let videos = {};
+
   if ($platform_config_store["Source of media files"].includes("local")) {
     try {
       used_filepath = $local_file_store[medium.UAR].name;
@@ -16,6 +19,29 @@
       medium[$platform_config_store["Title of column used for url"]];
     src = used_filepath;
   }
+
+  //  Action<HTMLVideoElement>
+  const video_action = (node, uar) => { 
+    console.log("hi! :D");
+    let index = -1;
+    let intervalId = -1;
+
+    // $effect(() => {
+    //     // index = 
+    //     videos[medium.UAR] = [node.video_start, node.duration, node.currentTime];
+    //     // node.currentTime / node.duration
+
+    //     intervalId = setInterval(() => {
+    //       videos[uar][2] = node.currentTime;
+    //     }, 100);
+    // });
+
+    // $return(() => {
+    //   if (intervalId != -1)
+    //     clearInterval(intervalId);
+    // });
+  };
+
 </script>
 
 {#if src !== null}
@@ -25,7 +51,8 @@
       .toLowerCase()
       .includes("webm") || used_filepath.toLowerCase().includes("m4v")}
     <div class="medium_video" id={medium.id}>
-      <video controls muted {src} type="video/mp4" />
+      <video controls muted {src} type="video/mp4" use:video_action />
+      <!-- {document.getElementById(medium.id).video.} -->
     </div>
   {:else if used_filepath.includes("png") || used_filepath.includes("jpeg") || used_filepath.includes("jpg") || used_filepath.includes("webp")}
     <div class="medium_image" id={medium.id}>

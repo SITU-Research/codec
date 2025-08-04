@@ -26,7 +26,7 @@
     "eslint-plugin-n": "^15.5.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-svelte": "^2.13.0",
-    "netlify-cli": "^9.6.5",
+    "netlify-cli": "^9.16.7",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.3",
     "rollup": "^2.3.4",

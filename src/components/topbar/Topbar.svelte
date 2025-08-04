@@ -3,6 +3,7 @@
   import Finder from "./Finder.svelte";
   import ModuleTools from "./ModuleTools.svelte";
   import About from "./About.svelte";
+  import Project from "./Projects.svelte";
   import Logo from "./Logo.svelte";
 </script>
 
@@ -11,6 +12,7 @@
   <div class="vl" />
   <ModuleTools />
   <Finder />
+  <Project />
   <About />
   <div class="vl" />
   <Logo />
